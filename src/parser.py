@@ -15,7 +15,7 @@ ATTRS = (
 )
 
 
-class DiagramBuilder():
+class Parser():
     def __init__(self, input):
         """
         First line is either the options or the entities
@@ -52,10 +52,14 @@ class DiagramBuilder():
         if attrs_string:
             for attr in ATTRS:
                 if isinstance(attr, tuple):
-                    attr = '(?:' + '|'.join(attr) + ')'  # non-capturing group containing the alternatives
-                val = re.findall(f'{attr} ?= ?"(.*?)"', attrs_string[0])
-                if val:
-                    options[attr] = val[0]
+                    attr_re = '(' + '|'.join(attr) + ')'
+                    val = re.findall(f'{attr_re} ?= ?"(.*?)"', attrs_string[0])
+                    if val:
+                        options[val[0][0]] = val[0][1]
+                else:
+                    val = re.findall(f'{attr} ?= ?"(.*?)"', attrs_string[0])
+                    if val:
+                        options[attr] = val[0]
         return options
 
     def parse_context(self, line):
@@ -107,8 +111,3 @@ class DiagramBuilder():
                 # parse lines
                 self.parse_arcs(line)
         print("PARSING GAVE:\n", self)
-
-    def generate(self):
-        #TODO
-        return ''
-
