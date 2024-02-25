@@ -1,0 +1,148 @@
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+ "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1"
+ width="1200px" height="392px"
+ viewBox="0 0 1200 392"
+ xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"
+ stroke-width="1" text-rendering="geometricPrecision">
+<polygon fill="white" points="195,7 203,7 203,16 195,16"/>
+<text x="200" y="16" textLength="7" font-family="Helvetica" font-size="12" fill="black" text-anchor="middle">
+
+a
+</text>
+<polygon fill="white" points="595,7 603,7 603,16 595,16"/>
+<text x="600" y="16" textLength="7" font-family="Helvetica" font-size="12" fill="black" text-anchor="middle">
+
+b
+</text>
+<polygon fill="white" points="995,7 1003,7 1003,16 995,16"/>
+<text x="1000" y="16" textLength="6" font-family="Helvetica" font-size="12" fill="black" text-anchor="middle">
+
+c
+</text>
+<line x1="200" y1="22" x2="200" y2="50" stroke="black"/>
+<line x1="600" y1="22" x2="600" y2="50" stroke="black"/>
+<line x1="1000" y1="22" x2="1000" y2="50" stroke="black"/>
+<line x1="200" y1="33" x2="600" y2="33" stroke="black"/>
+<line x1="600" y1="33" x2="590" y2="39" stroke="black"/>
+<polygon fill="white" points="388,23 411,23 411,32 388,32"/>
+<text x="389" y="32" textLength="21" font-family="Helvetica" font-size="12" fill="black">
+ab()
+</text>
+<line x1="200" y1="50" x2="200" y2="78" stroke="black"/>
+<line x1="600" y1="50" x2="600" y2="78" stroke="black"/>
+<line x1="1000" y1="50" x2="1000" y2="78" stroke="black"/>
+<line x1="600" y1="61" x2="1000" y2="61" stroke="black"/>
+<line x1="1000" y1="61" x2="990" y2="67" stroke="black"/>
+<polygon fill="white" points="772,51 827,51 827,60 772,60"/>
+<text x="773" y="60" textLength="53" font-family="Helvetica" font-size="12" fill="black">
+bc(TRUE)
+</text>
+<line x1="200" y1="78" x2="200" y2="106" stroke="black"/>
+<line x1="600" y1="78" x2="600" y2="106" stroke="black"/>
+<line x1="1000" y1="78" x2="1000" y2="106" stroke="black"/>
+<path d="M 1000 83 A200,6 0 0,1 1000,95" stroke="black" fill="none"/><polygon fill="black" points="1000,95 1010,101 1010,89"/>
+<polygon fill="white" points="939,79 998,79 998,88 939,88"/>
+<text x="940" y="88" textLength="57" font-family="Helvetica" font-size="12" fill="black">
+process(1)
+</text>
+<line x1="200" y1="106" x2="200" y2="134" stroke="black"/>
+<line x1="600" y1="106" x2="600" y2="134" stroke="black"/>
+<line x1="1000" y1="106" x2="1000" y2="134" stroke="black"/>
+<path d="M 1000 111 A200,6 0 0,1 1000,123" stroke="black" fill="none"/><polygon fill="black" points="1000,123 1010,129 1010,117"/>
+<polygon fill="white" points="939,107 998,107 998,116 939,116"/>
+<text x="940" y="116" textLength="57" font-family="Helvetica" font-size="12" fill="black">
+process(2)
+</text>
+<line x1="200" y1="134" x2="200" y2="151" stroke="black" stroke-dasharray="2,2"/>
+<line x1="600" y1="134" x2="600" y2="151" stroke="black" stroke-dasharray="2,2"/>
+<line x1="1000" y1="134" x2="1000" y2="151" stroke="black" stroke-dasharray="2,2"/>
+<line x1="200" y1="151" x2="200" y2="179" stroke="black"/>
+<line x1="600" y1="151" x2="600" y2="179" stroke="black"/>
+<line x1="1000" y1="151" x2="1000" y2="179" stroke="black"/>
+<path d="M 1000 156 A200,6 0 0,1 1000,168" stroke="black" fill="none"/><polygon fill="black" points="1000,168 1010,174 1010,162"/>
+<polygon fill="white" points="939,152 998,152 998,161 939,161"/>
+<text x="940" y="161" textLength="57" font-family="Helvetica" font-size="12" fill="black">
+process(n)
+</text>
+<line x1="200" y1="179" x2="200" y2="207" stroke="black"/>
+<line x1="600" y1="179" x2="600" y2="207" stroke="black"/>
+<line x1="1000" y1="179" x2="1000" y2="207" stroke="black"/>
+<path d="M 1000 184 A200,6 0 0,1 1000,196" stroke="black" fill="none"/><polygon fill="black" points="1000,196 1010,202 1010,190"/>
+<polygon fill="white" points="921,180 998,180 998,189 921,189"/>
+<text x="922" y="189" textLength="75" font-family="Helvetica" font-size="12" fill="black">
+process(END)
+</text>
+<line x1="200" y1="207" x2="200" y2="235" stroke="black"/>
+<line x1="600" y1="207" x2="600" y2="235" stroke="black"/>
+<line x1="1000" y1="207" x2="1000" y2="235" stroke="black"/>
+<line x1="1000" y1="218" x2="200" y2="218" stroke="black"/>
+<line x1="200" y1="218" x2="210" y2="224" stroke="black"/>
+<line x1="200" y1="218" x2="210" y2="212" stroke="black"/>
+<polygon fill="white" points="573,208 626,208 626,217 573,217"/>
+<text x="574" y="217" textLength="51" font-family="Helvetica" font-size="12" fill="black">
+callback()
+</text>
+<line x1="200" y1="235" x2="200" y2="252" stroke="black"/>
+<line x1="600" y1="235" x2="600" y2="252" stroke="black"/>
+<line x1="1000" y1="235" x2="1000" y2="252" stroke="black"/>
+<line x1="100" y1="240" x2="1100" y2="240" stroke="black" stroke-dasharray="2,2"/>
+<polygon fill="white" points="563,236 636,236 636,245 563,245"/>
+<text x="564" y="245" textLength="71" font-family="Helvetica" font-size="12" fill="black">
+If more to run
+</text>
+<polygon fill="white" points="634,233 639,233 639,238 634,238"/>
+<text x="635" y="238" textLength="3" font-family="Helvetica" font-size="8" fill="black">
+*
+</text>
+<line x1="200" y1="252" x2="200" y2="280" stroke="black"/>
+<line x1="600" y1="252" x2="600" y2="280" stroke="black"/>
+<line x1="1000" y1="252" x2="1000" y2="280" stroke="black"/>
+<path d="M 200 269 A198,6 0 0,1 200,257" stroke="black" fill="none"/><line x1="200" y1="269" x2="190" y2="275" stroke="black"/>
+<polygon fill="white" points="200,253 233,253 233,262 200,262"/>
+<text x="201" y="262" textLength="31" font-family="Helvetica" font-size="12" fill="black">
+next()
+</text>
+<line x1="200" y1="280" x2="200" y2="308" stroke="black"/>
+<line x1="600" y1="280" x2="600" y2="308" stroke="black"/>
+<line x1="1000" y1="280" x2="1000" y2="308" stroke="black"/>
+<line x1="200" y1="291" x2="1000" y2="291" stroke="black"/>
+<line x1="1000" y1="291" x2="990" y2="297" stroke="black"/>
+<polygon fill="white" points="585,281 614,281 614,290 585,290"/>
+<text x="586" y="290" textLength="27" font-family="Helvetica" font-size="12" fill="black">
+ac1()
+</text>
+<polygon fill="white" points="585,292 614,292 614,301 585,301"/>
+<text x="586" y="301" textLength="27" font-family="Helvetica" font-size="12" fill="black">
+ac2()
+</text>
+<line x1="200" y1="308" x2="200" y2="336" stroke="black"/>
+<line x1="600" y1="308" x2="600" y2="336" stroke="black"/>
+<line x1="1000" y1="308" x2="1000" y2="336" stroke="black"/>
+<line x1="1000" y1="319" x2="600" y2="319" stroke="black"/>
+<line x1="600" y1="319" x2="610" y2="325" stroke="black"/>
+<polygon fill="white" points="772,309 827,309 827,318 772,318"/>
+<text x="773" y="318" textLength="53" font-family="Helvetica" font-size="12" fill="black">
+cb(TRUE)
+</text>
+<line x1="200" y1="336" x2="200" y2="364" stroke="black"/>
+<line x1="600" y1="336" x2="600" y2="364" stroke="black"/>
+<line x1="1000" y1="336" x2="1000" y2="364" stroke="black"/>
+<path d="M 600 341 A200,6 0 0,1 600,353" stroke="black" fill="none"/><line x1="600" y1="353" x2="610" y2="359" stroke="black"/>
+<polygon fill="white" points="543,337 598,337 598,346 543,346"/>
+<text x="544" y="346" textLength="53" font-family="Helvetica" font-size="12" fill="black">
+stalled(...)
+</text>
+<line x1="200" y1="364" x2="200" y2="392" stroke="black"/>
+<line x1="600" y1="364" x2="600" y2="392" stroke="black"/>
+<line x1="1000" y1="364" x2="1000" y2="392" stroke="black"/>
+<line x1="600" y1="375" x2="200" y2="375" stroke="black"/>
+<line x1="200" y1="375" x2="210" y2="381" stroke="black"/>
+<polygon fill="white" points="362,365 437,365 437,374 362,374"/>
+<text x="363" y="374" textLength="73" font-family="Helvetica" font-size="12" fill="black">
+ab() = FALSE
+</text>
+<line x1="200" y1="386" x2="200" y2="392" stroke="black"/>
+<line x1="600" y1="386" x2="600" y2="392" stroke="black"/>
+<line x1="1000" y1="386" x2="1000" y2="392" stroke="black"/>
+</svg>
