@@ -4,7 +4,7 @@
  width="1200px" height="392px"
  viewBox="0 0 1200 392"
  xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges"
- stroke-width="1" text-rendering="geometricPrecision">
+ stroke-width="3" text-rendering="geometricPrecision">
 <polygon fill="white" points="195,7 203,7 203,16 195,16"/>
 <text x="200" y="16" textLength="7" font-family="Helvetica" font-size="12" fill="black" text-anchor="middle">
 
@@ -20,7 +20,7 @@ b
 
 c
 </text>
-<line x1="200" y1="22" x2="200" y2="50" stroke="black"/>
+<line x1="200" y1="22" x2="200" y2="50" stroke="green"/>
 <line x1="600" y1="22" x2="600" y2="50" stroke="black"/>
 <line x1="1000" y1="22" x2="1000" y2="50" stroke="black"/>
 <line x1="200" y1="33" x2="600" y2="33" stroke="black"/>
@@ -65,8 +65,8 @@ process(2)
 <text x="940" y="161" textLength="57" font-family="Helvetica" font-size="12" fill="black">
 process(n)
 </text>
-<line x1="200" y1="179" x2="200" y2="207" stroke="black"/>
-<line x1="600" y1="179" x2="600" y2="207" stroke="black"/>
+<line x1="200" y1="179" x2="200" y2="207" stroke="blue"/>
+<line x1="600" y1="179" x2="600" y2="207" stroke="red"/>
 <line x1="1000" y1="179" x2="1000" y2="207" stroke="black"/>
 <path d="M 1000 184 A200,6 0 0,1 1000,196" stroke="black" fill="none"/><polygon fill="black" points="1000,196 1010,202 1010,190"/>
 <polygon fill="white" points="921,180 998,180 998,189 921,189"/>
@@ -74,7 +74,7 @@ process(n)
 process(END)
 </text>
 <line x1="200" y1="207" x2="200" y2="235" stroke="black"/>
-<line x1="600" y1="207" x2="600" y2="235" stroke="black"/>
+<line x1="600" y1="207" x2="600" y2="235" stroke="red"/>
 <line x1="1000" y1="207" x2="1000" y2="235" stroke="black"/>
 <line x1="1000" y1="218" x2="200" y2="218" stroke="black"/>
 <line x1="200" y1="218" x2="210" y2="224" stroke="black"/>
