@@ -1,13 +1,15 @@
 import xml.etree.ElementTree as ET
 
 from src.parser import Parser
+import src.utils as utils
 
 
 class Builder:
     def __init__(self, input):
         self.parser = Parser(input)
         self.participants_coordinates = {}
-        self.vertical_step = 28 + self.parser.context['arcgradient']
+        self.vertical_step = 28 + self.parser.context['arcgradient']  # margin AFTER drawing any element
+        self.margin = self.vertical_step / 2  # margin BEFORE drawing any element
         self.stylesheets = []
         self.current_height = 16
 
@@ -43,8 +45,11 @@ class Builder:
             for element in elements:
                 element.draw(builder=self, root=root)
 
+        # add a bottom margin
+        y2 = self.current_height + self.margin
+        utils.expand_lifelines(self, root, y1=self.current_height, y2=y2, extra_options={})
         # set height
-        root.attrib['height'] = str(self.current_height)
+        root.attrib['height'] = str(self.current_height + self.vertical_step)
         # indent
         tree = ET.ElementTree(root)
         ET.indent(tree, space="\t", level=0)

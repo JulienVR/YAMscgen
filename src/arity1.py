@@ -14,8 +14,14 @@ class Arity1:
         return f"<{self._name}> {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        utils.expand_lifelines(builder, root, extra_options or {})
-        builder.current_height += builder.vertical_step
+        # Expand lifelines: margin
+        y1 = builder.current_height
+        builder.current_height = y1 + builder.margin
+        utils.expand_lifelines(builder, root, y1=y1, y2=builder.current_height, extra_options={})
+        # Expand lifelines: element
+        y1 = builder.current_height
+        builder.current_height = y1 + builder.vertical_step
+        utils.expand_lifelines(builder, root, y1=y1, y2=builder.current_height, extra_options=extra_options or {})
 
 
 class ExtraSpace(Arity1):

@@ -45,13 +45,13 @@ class Arc(Arity2):
 
     def draw(self, builder, root: ET.Element):
         # Arc
-        y1 = builder.current_height + builder.vertical_step / 2
+        y1 = builder.current_height + builder.margin
         x1 = builder.participants_coordinates[self.src]
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context['arcgradient']
         if self.src == self.dst:
             # Special case: curved arc
-            if not builder.parser.context['arcgradient']:
+            if builder.parser.context['arcgradient'] < 10:
                 y2 += 10
             arc_magnitude = 100  # todo: make this a param
             ET.SubElement(root, 'path', {
@@ -85,9 +85,8 @@ class Arc(Arity2):
             'points': f"{x1},{y1} {x2},{y2} {x3},{y3}",
         })
         # Lifelines of participants
-        utils.expand_lifelines(builder, root, self.options)
-        # Increase height pointer
-        builder.current_height += builder.vertical_step
+        utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options=self.options)
+        builder.current_height = y2
 
 
 class Box(Arity2):
