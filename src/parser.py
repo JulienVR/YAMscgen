@@ -16,6 +16,14 @@ ATTRS = (
     ('arctextcolour', 'arctextcolor'),
     ('arctextbgcolour', 'arctextbgcolor'),
 )
+REVERTED_ARC_TO_RECIPROCAL = {
+    '<<=': '=>>',
+    '<-': '->',
+    '<=': '=>',
+    '<<': '>>',
+    '<:': ':>',
+    'x-': '-x',
+}
 
 
 class Parser:
@@ -62,17 +70,17 @@ class Parser:
 
     @staticmethod
     def parse_options(line):
-        attrs_string = re.findall(REGEX_ATTRIBUTES, line)
+        attrs_string = re.findall(REGEX_ATTRIBUTES, line, re.DOTALL)  # DOTALL: in case a label contains "\n"
         options = {}
         if attrs_string:
             for attr in ATTRS:
                 if isinstance(attr, tuple):
                     attr_re = '(' + '|'.join(attr) + ')'
-                    val = re.findall(f'{attr_re} ?= ?"(.*?)"', attrs_string[0])
+                    val = re.findall(f'{attr_re} ?= ?"(.*?)"', attrs_string[0], re.DOTALL)
                     if val:
                         options[val[0][0]] = val[0][1]
                 else:
-                    val = re.findall(f'{attr} ?= ?"(.*?)"', attrs_string[0])
+                    val = re.findall(f'{attr} ?= ?"(.*?)"', attrs_string[0], re.DOTALL)
                     if val:
                         options[attr] = val[0]
         return options
@@ -113,14 +121,6 @@ class Parser:
 
     def parse_arcs(self, line):
         """ Parse the arc(s) on a given line """
-        reverted_arc_to_reciprocal = {
-            '<<=': '=>>',
-            '<-': '->',
-            '<=': '=>',
-            '<<': '>>',
-            '<:': ':>',
-            'x-': '-x',
-        }
         arcs = []
         for el in self.split_elements_on_line(line):
             el_txt = re.sub(REGEX_ATTRIBUTES, '', el).strip()
@@ -128,9 +128,9 @@ class Parser:
             assert match, f"Could not parse arc: '{el_txt}'"
             src, dst = match[0][0], match[0][2]
             arc = match[0][1]
-            if arc in reverted_arc_to_reciprocal:
+            if arc in REVERTED_ARC_TO_RECIPROCAL:
                 src, dst = dst, src
-                arc = reverted_arc_to_reciprocal[arc]
+                arc = REVERTED_ARC_TO_RECIPROCAL[arc]
             arcs.append(Arc(src=src, element=arc, dst=dst, options=self.parse_options(el)))
         self.elements.append(arcs)
         

@@ -13,8 +13,8 @@ class Arity1:
     def __repr__(self):
         return f"<{self._name}> {self.options}"
 
-    def draw(self, builder, root: ET.Element, extra_options: dict):
-        utils.expand_lifelines(builder, root, extra_options)
+    def draw(self, builder, root: ET.Element, extra_options: dict = False):
+        utils.expand_lifelines(builder, root, extra_options or {})
         builder.current_height += builder.vertical_step
 
 

@@ -73,6 +73,32 @@ class Test(unittest.TestCase):
         }""")
         print(builder.parser)
         image = builder.generate()
+
+    def test_arc_to_self_and_arcgradient(self):
+        builder = Builder("""msc {
+        arcgradient = "50";
+        # The entities
+        A, B;
+        
+        # Next four on same line due to ','
+        A -> B [label = "this is label"];
+        B -> B [label = "this is label 1"];
+        A -> A [label = "this is label 1"]; 
+        A -> B;
+        }
+        """)
+        print(builder.parser)
+        image = builder.generate()
+
+    def test_newline_char(self):
+        # TODO: manually draw another text box in the SVG
+        builder = Builder("""msc {
+        arcgradient = "10";
+        a, b;
+        a->b [label="this is a line\nand a new line"];
+        }""")
+        print(builder.parser)
+        image = builder.generate()
         
     def test4(self):
         line = ' ... [label = "this is ...", ID="1"], --- [label = "2nd", ID="2"];'
