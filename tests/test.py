@@ -16,7 +16,7 @@ class Test(unittest.TestCase):
           c =>c [ label = "process(1)" ];
           c=>c [ label = "process(2)" ];
           ...;
-          c=>c [ label = "process(n)" ];
+          c=>c [ label = "process(n)", linecolor="blue" ];
           c=>c [ label = "process(END)" ];
           a<<=c [ label = "callback()"];
           ---  [ label = "If more to run", ID="*" ];
@@ -81,8 +81,8 @@ class Test(unittest.TestCase):
         A, B;
         
         # Next four on same line due to ','
-        A -> B [label = "this is label"];
-        B -> B [label = "this is label 1"];
+        A -> B [label = "this is label", linecolor="red"];
+        B -> B [label = "this is label 1", linecolour="blue"];
         A -> A [label = "this is label 1"]; 
         A -> B;
         }

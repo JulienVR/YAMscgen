@@ -44,9 +44,11 @@ class Arc(Arity2):
             root.append(g)
 
     def draw(self, builder, root: ET.Element):
-        # Arc
-        y1 = builder.current_height + builder.margin
+        # Arc color
+        color = self.options.get('linecolour') or self.options.get('linecolor') or "black"
+        # Arc coordinates
         x1 = builder.participants_coordinates[self.src]
+        y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context['arcgradient']
         if self.src == self.dst:
@@ -56,34 +58,43 @@ class Arc(Arity2):
             arc_magnitude = 100  # todo: make this a param
             ET.SubElement(root, 'path', {
                 **self.options,
-                'stroke': 'black',
+                'stroke': color,
                 'd': f"M{x1},{y1} C{x1+arc_magnitude},{y1} {x1+arc_magnitude},{y2} {x2},{y2}",
                 'fill': 'none',
+                'marker-end': f"url(#arrow-{color})",
             })
         else:
             # Class line arc
             ET.SubElement(root, 'line', {
                 **self.options,
-                'stroke': 'black',
+                'stroke': color,
                 'x1': str(x1),
                 'y1': str(y1),
                 'x2': str(x2),
                 'y2': str(y2),
+                'marker-end': f"url(#arrow-{color})",
             })
         # Label
         label = self.options.get('label')
         if label:
             self.draw_label(root, label, x1, x2, y1, y2)
-        # Triangle
-        y1, y3 = y2 + 6, y2 - 6
-        if x1 < x2:
-            x1 = x3 = x2 - 10
-        else:
-            x1 = x3 = x2 + 10
-        ET.SubElement(root, 'polygon', {
-            'fill': 'black',
-            'points': f"{x1},{y1} {x2},{y2} {x3},{y3}",
-        })
+        # Arrow (see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end)
+        if not root.find(f"defs/marker[@id='arrow-{color}']"):
+            # TODO: support other kind of arrows
+            marker = ET.SubElement(root.find('defs'), 'marker', {
+                'id': f"arrow-{color}",
+                'viewBox': '0 0 10 10',  # x, y, width, height
+                'refX': '10',
+                'refY': '5',
+                'markerUnits': 'strokeWidth',
+                'markerWidth': '10',
+                'markerHeight': '10',
+                'orient': 'auto',
+            })
+            ET.SubElement(marker, 'path', {
+                'd': 'M 0 0 L 10 5 L 0 10 z',  # simple triangle (M: MoveTo, L: LineTo, z: ClosePath) see: https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/d
+                'fill': color,
+            })
         # Lifelines of participants
         utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options=self.options)
         builder.current_height = y2

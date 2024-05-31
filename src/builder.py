@@ -38,6 +38,7 @@ class Builder:
             'width': str(self.parser.context['width'] * self.parser.context['hscale']),
             'xmlns': "http://www.w3.org/2000/svg",
         })
+        ET.SubElement(root, 'defs')
 
         self.draw_participants(root, self.current_height)
         self.current_height += 4
