@@ -76,15 +76,22 @@ class Test(unittest.TestCase):
 
     def test_arc_to_self_and_arcgradient(self):
         builder = Builder("""msc {
-        arcgradient = "50";
+        arcgradient = "30";
         # The entities
         A, B;
         
         # Next four on same line due to ','
         A -> B [label = "this is label", linecolor="red"];
-        B -> B [label = "this is label 1", linecolour="blue"];
-        A -> A [label = "this is label 1"]; 
-        A -> B;
+        B -> A [label = "this is label", linecolor="red"];
+        B => B [label = "this is label 1", linecolour="blue"];
+        A => B [label = "this is label 1", linecolour="blue"];
+        A >> A [label = "label >>"]; 
+        A << B [label = "label >>"]; 
+        A =>> B [label = "label =>>"];
+        A :> B [label = "label :>"];
+        A <: B [label = "label :> bla bla bla"];
+        B <: B [label = "label :> bla bla bla"];
+        B -x A [label = "label -x"];
         }
         """)
         print(builder.parser)
