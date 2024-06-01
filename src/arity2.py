@@ -2,6 +2,28 @@ import xml.etree.ElementTree as ET
 
 import src.utils as utils
 
+HELVETICA = {
+    'capheight': 718,
+    'xheight': 523,
+    'ascender': 718,
+    'descender': -207,
+    'unicode_to_width': {
+        32: 278, 33: 278, 34: 355, 35: 556, 36: 556, 37: 889, 38: 667, 39: 222, 40: 333, 41: 333, 42: 389, 43: 584,
+        44: 278, 45: 333, 46: 278, 47: 278, 48: 556, 49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556,
+        56: 556, 57: 556, 58: 278, 59: 278, 60: 584, 61: 584, 62: 584, 63: 556, 64: 1015, 65: 667, 66: 667, 67: 722,
+        68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 500, 75: 667, 76: 556, 77: 833, 78: 722, 79: 778,
+        80: 667, 81: 778, 82: 722, 83: 667, 84: 611, 85: 722, 86: 667, 87: 944, 88: 667, 89: 667, 90: 611, 91: 278,
+        92: 278, 93: 278, 94: 469, 95: 556, 96: 222, 97: 556, 98: 556, 99: 500, 100: 556, 101: 556, 102: 278, 103: 556,
+        104: 556, 105: 222, 106: 222, 107: 500, 108: 222, 109: 833, 110: 556, 111: 556, 112: 556, 113: 556, 114: 333,
+        115: 500, 116: 278, 117: 556, 118: 500, 119: 722, 120: 500, 121: 500, 122: 500, 123: 334, 124: 260, 125: 334,
+        126: 584, 161: 333, 162: 556, 163: 556, 164: 167, 165: 556, 166: 556, 167: 556, 168: 556, 169: 191, 170: 333,
+        171: 556, 172: 333, 173: 333, 174: 500, 175: 500, 177: 556, 178: 556, 179: 556, 180: 278, 182: 537, 183: 350,
+        184: 222, 185: 333, 186: 333, 187: 556, 188: 1000, 189: 1000, 191: 611, 193: 333, 194: 333, 195: 333, 196: 333,
+        197: 333, 198: 333, 199: 333, 200: 333, 202: 333, 203: 333, 205: 333, 206: 333, 207: 333, 208: 1000, 225: 1000,
+        227: 370, 232: 556, 233: 778, 234: 1000, 235: 365, 241: 889, 245: 278, 248: 222, 249: 611, 250: 944, 251: 611,
+    }
+}
+
 
 class Arity2:
     def __init__(self, src, dst, element, options):
@@ -67,37 +89,38 @@ class Arc(Arity2):
                     'fill': color,
                 })
 
-    def draw_label(self, root, x1, x2, y1, y2):
+    def draw_label(self, root, x1, x2, y1, y2, font_size):
         label = self.options.get('label')
         if not label:
             return
         g = ET.Element('g')
-        if self.src != self.dst:
-            # standard case
-            x_mean = (x1 + x2) / 2
-            y_mean = (y1 + y2) / 2
+        width = sum(HELVETICA['unicode_to_width'].get(ord(c), 0) for c in label)
+        actual_width = width * font_size / 1000
+        MARGIN = 1  # margin before and after the label
+        OFFSET = 5  # offset above the arc
+        if self.src == self.dst:
+            x = x1 + OFFSET
+            y = y1 - OFFSET
         else:
-            # special case: source == destination
-            x_mean = x1
-            y_mean = y1
-        # ET.SubElement(g, 'rect', {
-        #     # upper left corner coordinates
-        #     'x': str(x_mean),
-        #     'y': str(y_mean),
-        #     # length and height of the rectangle
-        #     'width': '40',
-        #     'height': '20',
-        #     'fill': 'grey',
-        # })  # TODO: draw rectangle behind the text elements
+            x = min(x1, x2) + abs(x2 - x1)/2 - actual_width/2
+            y = (y1 + y2) / 2 - OFFSET
+        ET.SubElement(g, 'rect', {
+            # upper left corner coordinates
+            'x': str(x - MARGIN),
+            'y': str(y - (HELVETICA['ascender'] * font_size/1000) * 1.1),
+            'width': str(actual_width + 2 * MARGIN),
+            'height': str((HELVETICA['ascender'] - HELVETICA['descender']) * font_size/1000 * 1.1),
+            'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
+        })
+
         for lab in label.split('\n'):  # labels may contain newline character
             text = ET.SubElement(g, 'text', {
-                'x': str(x1 + 5) if self.src == self.dst else str(x_mean),
-                'y': str(y_mean - 5),
-                'text-anchor': 'middle' if self.src != self.dst else '',
-                # the text will be centered around the given coordinates
+                'x': str(x),
+                'y': str(y),
+                'style': f"font-size: {font_size}",
+                'font-family': 'Helvetica',
             })
             text.text = lab
-            y_mean += 20  # todo: measure the height of a given string to update this
             root.append(g)
 
     def draw(self, builder, root: ET.Element):
@@ -174,7 +197,7 @@ class Arc(Arity2):
                 'stroke-dasharray': '5, 3' if self.element == '>>' else '',
             })
         # Label
-        self.draw_label(root, x1, x2, y1, y2)
+        self.draw_label(root, x1, x2, y1, y2, builder.font_size)
         # Arrow (see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end)
         self.draw_arrow_tip(root, arrow_id, color)
         # Lifelines of participants

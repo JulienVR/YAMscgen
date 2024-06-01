@@ -12,6 +12,7 @@ class Builder:
         self.margin = self.vertical_step / 2  # margin BEFORE drawing any element
         self.stylesheets = []
         self.current_height = 16
+        self.font_size = 12
 
     def draw_participants(self, root, height):
         """ Draw participants (on top of the image) """
@@ -21,7 +22,7 @@ class Builder:
             label = entity['options'].pop('label', None)
             self.participants_coordinates[entity['name']] = x
             node = ET.SubElement(root, 'text', {
-                'font-size': '12',
+                'font-size': str(self.font_size),
                 'font-family': 'Helvetica',
                 'fill': 'black',
                 'text-anchor': 'middle',

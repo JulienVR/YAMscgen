@@ -81,13 +81,13 @@ class Test(unittest.TestCase):
         A, B;
         
         # Next four on same line due to ','
-        A -> B [label = "this is label", linecolor="red"];
+        A -> B [label = "this is label ppp", linecolor="red", textbgcolour = "grey"];
         B -> A [label = "this is label", linecolor="red"];
-        B => B [label = "this is label 1", linecolour="blue"];
+        B => B [label = "this is label 1", linecolour="blue", textbgcolor = "turquoise"];
         A => B [label = "this is label 1", linecolour="blue"];
         A >> A [label = "label >>"]; 
         A << B [label = "label >>"]; 
-        A =>> B [label = "label =>>"];
+        A =>> B [label = "label =>>", textbgcolour = "turquoise"];
         A :> B [label = "label :>"];
         A <: B [label = "label :> bla bla bla"];
         B <: B [label = "label :> bla bla bla"];
