@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 
-import src.utils as utils
+from . import utils
 
+# TODO generify usage of font
 HELVETICA = {
     'capheight': 718,
     'xheight': 523,
@@ -93,35 +94,45 @@ class Arc(Arity2):
         label = self.options.get('label')
         if not label:
             return
-        g = ET.Element('g')
-        width = sum(HELVETICA['unicode_to_width'].get(ord(c), 0) for c in label)
-        actual_width = width * font_size / 1000
         MARGIN = 1  # margin before and after the label
-        OFFSET = 5  # offset above the arc
-        if self.src == self.dst:
-            x = x1 + OFFSET
-            y = y1 - OFFSET
-        else:
-            x = min(x1, x2) + abs(x2 - x1)/2 - actual_width/2
-            y = (y1 + y2) / 2 - OFFSET
-        ET.SubElement(g, 'rect', {
-            # upper left corner coordinates
-            'x': str(x - MARGIN),
-            'y': str(y - (HELVETICA['ascender'] * font_size/1000) * 1.1),
-            'width': str(actual_width + 2 * MARGIN),
-            'height': str((HELVETICA['ascender'] - HELVETICA['descender']) * font_size/1000 * 1.1),
-            'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
-        })
-
-        for lab in label.split('\n'):  # labels may contain newline character
+        OFFSET = HELVETICA['ascender']/2 * font_size/1000  # offset above the arc
+        g = ET.Element('g')
+        lines_count = len(label.split('\n'))
+        for idx, lab in enumerate(label.split('\n')):  # labels may contain newline character
+            # Draw Boxes
+            text_width = sum(HELVETICA['unicode_to_width'].get(ord(c), 0) for c in lab) * font_size / 1000
+            if self.src == self.dst:
+                x = x1 + OFFSET
+                y = (y1 - OFFSET)
+            else:
+                x = min(x1, x2) + abs(x2 - x1) / 2 - text_width / 2
+                y = ((y1 + y2) / 2 - OFFSET)
+            text_height = (HELVETICA['ascender'] - HELVETICA['descender']) * font_size / 1000
+            scaled_ascender = HELVETICA['ascender'] * font_size / 1000
+            y -= (lines_count - idx - 1) * text_height
+            box_x = x - MARGIN
+            if lab == '':
+                continue
+            rect = ET.SubElement(g, 'rect', {
+                'x': str(box_x),
+                'y': str(y - scaled_ascender),
+                'width': str(text_width + 2 * MARGIN),
+                'height': str(text_height),
+                'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
+            })
+            # Sometimes, the text goes beyond the SVG frame
+            max_x = float(rect.attrib['x']) + float(rect.attrib['width'])
+            if max_x > float(root.attrib['width']):
+                root.attrib['width'] = str(max_x)
+            # Draw text inside the box
             text = ET.SubElement(g, 'text', {
-                'x': str(x),
+                'x': str(box_x),
                 'y': str(y),
                 'style': f"font-size: {font_size}",
                 'font-family': 'Helvetica',
             })
             text.text = lab
-            root.append(g)
+        root.append(g)
 
     def draw(self, builder, root: ET.Element):
         # Arc color
@@ -132,6 +143,12 @@ class Arc(Arity2):
         y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context['arcgradient']
+        # Label may have multiple lines, hence needing the arcs to be shifted downwards
+        label_lines_count = len(self.options.get('label', '').split('\n'))
+        if label_lines_count:
+            offset = label_lines_count * builder.font_size
+            y1 += offset
+            y2 += offset
         # Params (:>)
         y_delta = 2
         if self.src == self.dst:
@@ -196,13 +213,13 @@ class Arc(Arity2):
                 'marker-end': f"url(#{arrow_id})",
                 'stroke-dasharray': '5, 3' if self.element == '>>' else '',
             })
-        # Label
-        self.draw_label(root, x1, x2, y1, y2, builder.font_size)
         # Arrow (see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end)
         self.draw_arrow_tip(root, arrow_id, color)
         # Lifelines of participants
         utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options=self.options)
         builder.current_height = y2
+        # Label (last element drawn since the rendering order is based on the document order)
+        self.draw_label(root, x1, x2, y1, y2, builder.font_size)
 
 
 class Box(Arity2):
@@ -214,4 +231,5 @@ class Box(Arity2):
         return f"<Box> {self.src}{self.element}{self.dst} {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
+        # TODO
         pass

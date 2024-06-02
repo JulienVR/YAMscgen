@@ -1,7 +1,7 @@
 import re
 
-from src.arity2 import Arc, Box
-from src.arity1 import ExtraSpace, OmittedSignal, GeneralComment
+from .arity2 import Arc, Box
+from .arity1 import ExtraSpace, OmittedSignal, GeneralComment
 
 REGEX_ATTRIBUTES = r'\[(.*)]'
 ATTRS = (

@@ -1,6 +1,7 @@
 import unittest
 
-from src.builder import Builder, Parser
+from src.builder import Builder
+from src.parser import Parser
 
 
 class Test(unittest.TestCase):
@@ -8,20 +9,21 @@ class Test(unittest.TestCase):
     def test1(self):
         builder = Builder("""msc {
           hscale = "2";
+          arcgradient = "25";
         
           a,b,c;
         
-          a -> b [ label = "ab()" ] ;
+          a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "grey"];
+          a -> b [ label = "ab()", textbgcolor = "grey"] ;
           b-> c [ label = "bc(TRUE)"];
-          c =>c [ label = "process(1)" ];
+          c =>c [ label = "process(1)", textbgcolor = "grey"];
           c=>c [ label = "process(2)" ];
           ...;
-          c=>c [ label = "process(n)", linecolor="blue" ];
+          c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "grey" ];
           c=>c [ label = "process(END)" ];
           a<<=c [ label = "callback()"];
           ---  [ label = "If more to run", ID="*" ];
           a->a [ label = "next()"];
-          a->c [ label = "ac1()\nac2()"];
           b<-c [ label = "cb(TRUE)"];
           b->b [ label = "stalled(...)"];
           a<-b [ label = "ab() = FALSE"];

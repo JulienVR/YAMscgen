@@ -1,6 +1,6 @@
 import argparse
 
-from src.diagrams_builder import DiagramBuilder
+from src.builder import Builder
 
 parser = argparse.ArgumentParser(
     prog="Diagrams",
@@ -18,14 +18,9 @@ parser.add_argument("-f", "--filetype", choices=["svg", "png"], default="svg")
 
 args = parser.parse_args()
 
-# GENERATING DIAGRAMS
-#si text dépasse: faire grossir vers le bas (on fixe donc width dès le départ: 600px, mais height pas)
-# Si 3 éléments: x = 100, 300, 500
-# Si 4: x = 75, 225, 375, 525
-# Chaque élément texte est à l'intérieur d'un polygon (qui fit exactement la taille du texte !, peut être pas nécessaire d'avoir ce polygon)
-# une ligne = tout jusqu'à ';' (chaque élement séparé par ',')
+with open(args.input) as f:
+    text_input = f.read()
+image = Builder(text_input).generate()
 
-image = DiagramBuilder(args.input).parse()
-
-with open(args.output, 'w+') as f:
+with open(args.output, 'wb+') as f:
     f.write(image)

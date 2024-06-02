@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
 
-import src.utils as utils
+from . import utils
 
 
 class Arity1:
@@ -14,6 +14,7 @@ class Arity1:
         return f"<{self._name}> {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
+        # TODO: draw labels as well !
         # Expand lifelines: margin
         y1 = builder.current_height
         builder.current_height = y1 + builder.margin

@@ -1,18 +1,17 @@
 import xml.etree.ElementTree as ET
 
-from src.parser import Parser
-import src.utils as utils
+from . import parser, utils
 
 
 class Builder:
     def __init__(self, input):
-        self.parser = Parser(input)
+        self.parser = parser.Parser(input)
         self.participants_coordinates = {}
         self.vertical_step = 28 + self.parser.context['arcgradient']  # margin AFTER drawing any element
         self.margin = self.vertical_step / 2  # margin BEFORE drawing any element
         self.stylesheets = []
-        self.current_height = 16
-        self.font_size = 12
+        self.current_height = 0
+        self.font_size = 20
 
     def draw_participants(self, root, height):
         """ Draw participants (on top of the image) """
@@ -41,6 +40,7 @@ class Builder:
         })
         ET.SubElement(root, 'defs')
 
+        self.current_height = self.font_size
         self.draw_participants(root, self.current_height)
         self.current_height += 4
         for elements in self.parser.elements:
