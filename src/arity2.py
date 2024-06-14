@@ -148,11 +148,10 @@ class Arc(Arity2):
         # Arrow (see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end)
         self.draw_arrow(root, x1, x2, y1, y2, arrow_id, color)
         self.draw_arrow_tip(root, arrow_id, color)
-        # Lifelines of participants
-        utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options=self.options)
-        builder.current_height = y2
+
         # Label (last element drawn since the rendering order is based on the document order)
         utils.draw_label(root, x1, x2, y1, y2, builder.font_size, self.options, arc_to_self=self.src == self.dst)
+        return y2
 
 
 class Box(Arity2):
@@ -161,8 +160,36 @@ class Box(Arity2):
         super().__init__(src, dst, element, options)
 
     def __repr__(self):
-        return f"<Box> {self.src}{self.element}{self.dst} {self.options}"
+        return f"<Box> {self.src} {self.element} {self.dst} {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
         # TODO
-        pass
+        space_per_participant = builder.parser.context['width'] / len(builder.participants_coordinates.keys())
+        offset = utils.get_offset_from_label_multiple_lines(self.options.get('label', ''), builder.font_size)
+
+        x1 = builder.participants_coordinates[self.src] - space_per_participant * 0.4
+        y1 = builder.current_height + builder.margin
+        x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
+        y2 = y1 + builder.parser.context['arcgradient'] + offset
+
+        if self.element == 'box':
+            # rect
+            pass
+        elif self.element == 'rbox':
+            # rect with 'ry' and 'rx'
+            pass
+        elif self.element == 'abox':
+            # annoying path
+            pass
+        else:
+            # note: annoying path again
+            pass
+
+        ET.SubElement(root, 'path', {
+            **self.options,
+            'd': f"M {x1},{y1} L {x2},{y1} L {x2}, {y2} L {x1}, {y2} z",
+            'stroke': 'red',
+            'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
+        })
+        utils.draw_label_v2(root, x1, x2, y1, builder.font_size, self.options)
+        return y2

@@ -23,6 +23,7 @@ REVERTED_ARC_TO_RECIPROCAL = {
     '<<': '>>',
     '<:': ':>',
     'x-': '-x',
+    '*<-': '->*',
 }
 
 
@@ -103,36 +104,33 @@ class Parser:
         assert participants, f"Could not parse the participants on line {line}"
         self.participants = participants
 
-    def parse_arity1(self, line):
+    def parse_arity1(self, el):
         """ Parse '|||', '---', '...' on a given line """
-        elements = []
-        for el in self.split_elements_on_line(line):
-            element = re.sub(REGEX_ATTRIBUTES, '', el).strip()
-            options = self.parse_options(el)
-            if element == '|||':
-                elements.append(ExtraSpace(element=element, options=options))
-            elif element == '---':
-                elements.append(GeneralComment(element=element, options=options))
-            elif element == '...':
-                elements.append(OmittedSignal(element=element, options=options))
-            else:
-                raise Exception(f"Could not parse line: {line}")
-        self.elements.append(elements)
+        element = re.sub(REGEX_ATTRIBUTES, '', el).strip()
+        options = self.parse_options(el)
+        if element.startswith('|||'):
+            return ExtraSpace(options=options)
+        elif element.startswith('---'):
+            return GeneralComment(options=options)
+        elif element.startswith('...'):
+            return OmittedSignal(options=options)
+        else:
+            raise Exception(f"Could not parse line: {el}")
 
-    def parse_arcs(self, line):
-        """ Parse the arc(s) on a given line """
-        arcs = []
-        for el in self.split_elements_on_line(line):
-            el_txt = re.sub(REGEX_ATTRIBUTES, '', el).strip()
-            match = re.findall("(\S*?) ?(=>>|<<=|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|->\*|\*<-) ?(\S*)", el_txt)
-            assert match, f"Could not parse arc: '{el_txt}'"
-            src, dst = match[0][0], match[0][2]
-            arc = match[0][1]
-            if arc in REVERTED_ARC_TO_RECIPROCAL:
-                src, dst = dst, src
-                arc = REVERTED_ARC_TO_RECIPROCAL[arc]
-            arcs.append(Arc(src=src, element=arc, dst=dst, options=self.parse_options(el)))
-        self.elements.append(arcs)
+    def parse_arity2(self, el):
+        """ Parse the arcs/boxes on a given line """
+        el_txt = re.sub(REGEX_ATTRIBUTES, '', el).strip()
+        match = re.findall("(\S*?) ?(=>>|<<=|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|->\*|\*<-|box|rbox|abox|note) ?(\S*)", el_txt)
+        assert match, f"Could not parse arc: '{el_txt}'"
+        src, dst = match[0][0], match[0][2]
+        arc = match[0][1]
+        if arc in REVERTED_ARC_TO_RECIPROCAL:
+            src, dst = dst, src
+            arc = REVERTED_ARC_TO_RECIPROCAL[arc]
+        if arc in ('box', 'rbox', 'abox', 'note'):
+            return Box(src=src, element=arc, dst=dst, options=self.parse_options(el))
+        else:
+            return Arc(src=src, element=arc, dst=dst, options=self.parse_options(el))
         
     def parse(self):
         for line in self.input.split(';'):
@@ -146,8 +144,13 @@ class Parser:
             elif not self.participants:
                 # parse participants once
                 self.parse_participants(line)
-            elif line.startswith('|||') or line.startswith('---') or line.startswith('...'):
-                self.parse_arity1(line)
             else:
-                # parse arcs
-                self.parse_arcs(line)
+                # parse arcs, boxes, spaces, etc
+                elements = []
+                for el in self.split_elements_on_line(line):
+                    if el.startswith('|||') or el.startswith('---') or el.startswith('...'):
+                        element = self.parse_arity1(el)
+                    else:
+                        element = self.parse_arity2(el)
+                    elements.append(element)
+                self.elements.append(elements)

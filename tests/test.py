@@ -8,18 +8,17 @@ class Test(unittest.TestCase):
 
     def test1(self):
         builder = Builder("""msc {
-          hscale = "2";
-          arcgradient = "25";
+          hscale = "2", arcgradient = "20";
         
           a,b,c;
         
-          a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "grey"];
-          a -> b [ label = "ab()", textbgcolor = "grey"] ;
-          b-> c [ label = "bc(TRUE)"];
-          c =>c [ label = "process(1)", textbgcolor = "grey"];
+          a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "turquoise"];
+          a -> b [ label = "this should be on line X", textbgcolor = "turquoise"],
+          b-> c [ label = "this should be on line X as well", textbgcolor = "turquoise"];
+          c =>c [ label = "process(1)", textbgcolor = "turquoise"];
           c=>c [ label = "process(2)" ];
           ...;
-          c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "grey" ];
+          c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "turquoise" ];
           c=>c [ label = "process(END)" ];
           a<<=c [ label = "callback()"];
           ---  [ label = "If more to run", ID="*" ];
@@ -54,9 +53,9 @@ class Test(unittest.TestCase):
         print(builder.parser)
         image = builder.generate()
 
-    def test3(self):
+    def test_drawing_boxes(self):
         builder = Builder("""msc {
-        
+           arcgradient = "20";
            # The entities
            A, B, C, D;
         
@@ -64,7 +63,7 @@ class Test(unittest.TestCase):
            |||;
         
            # Next four on same line due to ','
-           A box A [label="box"],
+           A box A [label="box\nturlututu", textbgcolour="turquoise"],
            B rbox B [label="rbox"], C abox C [label="abox"] ,
            D note D [label="note"];
         
@@ -118,6 +117,20 @@ class Test(unittest.TestCase):
         line = ' ...  , --- ;'
         lines = Parser.split_elements_on_line(line)
         self.assertEqual(lines, ['...', '---'])
+
+    def test_arity1_elements(self):
+        builder = Builder("""msc {
+        arcgradient = "30";
+        a, b;
+        a->b [label="first arc"];
+        ||| [label="extra space", textbgcolor="turquoise"];
+        b->a [label="second arc"];
+        ... [label="omitted signal", textbgcolor="turquoise"];
+        a->b [label="third arc"];
+        --- [label="general comment\nwhich is on several lines\nanother one", textbgcolor="turquoise"];
+        }""")
+        print(builder.parser)
+        image = builder.generate()
 
 
 if __name__ == "__main__":

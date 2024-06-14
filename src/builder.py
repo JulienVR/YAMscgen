@@ -43,9 +43,13 @@ class Builder:
         self.current_height = self.font_size
         self.draw_participants(root, self.current_height)
         self.current_height += 4
-        for elements in self.parser.elements:
-            for element in elements:
-                element.draw(builder=self, root=root)
+        for line in self.parser.elements:
+            g = ET.SubElement(root, 'g')
+            # draw all the elements on the line
+            y2_list = [element.draw(builder=self, root=root) for element in line]
+            # expand the participants lifelines using the maximum y2 coordinate
+            utils.expand_lifelines(self, g, y1=self.current_height, y2=max(y2_list), extra_options={})
+            self.current_height = max(y2_list)
 
         # add a bottom margin
         y2 = self.current_height + self.margin

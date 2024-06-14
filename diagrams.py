@@ -8,6 +8,7 @@ parser = argparse.ArgumentParser(
     epilog="Written by Julien Van Roy under supervision of Pr. Bruno Quoitin (UMons).",
 )
 
+#TODO: allows to read from standard input, as mscgen (stop reading after a CTRL+D)
 parser.add_argument(
     "-i", "--input", help="The input file to read from.", required=True,
 )
