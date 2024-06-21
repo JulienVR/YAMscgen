@@ -56,6 +56,7 @@ class Test(unittest.TestCase):
     def test_drawing_boxes(self):
         builder = Builder("""msc {
            arcgradient = "20";
+           fontsize = "15";
            # The entities
            A, B, C, D;
         
@@ -63,10 +64,33 @@ class Test(unittest.TestCase):
            |||;
         
            # Next four on same line due to ','
+           A box A [label="box", textbgcolour="turquoise"],
+           B rbox B [label="rbox"], C abox C [label="abox"] ,
+           D note D [label="note\nline1\nline2\nline3\nline4"];
+        
+           # Example of the boxes with filled backgrounds
+           A abox B [label="abox\nabox", textbgcolour="#ff7f7f"];
+           B rbox C [label="rbox", textbgcolour="#7fff7f"];
+           C note D [label="note", textbgcolour="#7f7fff"];
+        }""")
+        print(builder.parser)
+        image = builder.generate()
+
+    def test_drawing_boxes_hscale(self):
+        builder = Builder("""msc {
+           arcgradient = "10";
+           hscale = "2";
+           # The entities
+           A, B, C, D;
+
+           # Small gap before the boxes
+           |||;
+
+           # Next four on same line due to ','
            A box A [label="box\nturlututu", textbgcolour="turquoise"],
            B rbox B [label="rbox"], C abox C [label="abox"] ,
            D note D [label="note"];
-        
+
            # Example of the boxes with filled backgrounds
            A abox B [label="abox", textbgcolour="#ff7f7f"];
            B rbox C [label="rbox", textbgcolour="#7fff7f"];
@@ -99,7 +123,6 @@ class Test(unittest.TestCase):
         image = builder.generate()
 
     def test_newline_char(self):
-        # TODO: manually draw another text box in the SVG
         builder = Builder("""msc {
         arcgradient = "10";
         a, b;
@@ -122,12 +145,15 @@ class Test(unittest.TestCase):
         builder = Builder("""msc {
         arcgradient = "30";
         a, b;
-        a->b [label="first arc"];
+        a->b [label="arc"];
+        --- [label="general comment\nwhich is on several lines\nanother one\nanother\nanother", textbgcolor="turquoise"];
+        a->b [label="fourth arc"];
+        --- [label="general comment", textbgcolor="turquoise"];
+        a->b;
         ||| [label="extra space", textbgcolor="turquoise"];
-        b->a [label="second arc"];
+        a->b [label="arc"];
         ... [label="omitted signal", textbgcolor="turquoise"];
-        a->b [label="third arc"];
-        --- [label="general comment\nwhich is on several lines\nanother one", textbgcolor="turquoise"];
+        a->b [label="arc"];
         }""")
         print(builder.parser)
         image = builder.generate()

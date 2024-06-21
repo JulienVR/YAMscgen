@@ -38,12 +38,14 @@ class Parser:
         * width = set the width (pixels), default = 600
         * arcgradient = number of pixels vertical difference between the start and the end of the arc
         * wordwraparcs = TODO
+        * fontsize = set the fontsize of all labels
         """
         self.input = re.findall(r'msc {([\s\S]*)}', input)[0]
         self.context = {
             'hscale': 1,
             'width': 600,
             'arcgradient': 0,
+            'fontsize': 12,
         }
         self.participants = []
         self.elements = []

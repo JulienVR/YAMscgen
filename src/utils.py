@@ -59,33 +59,49 @@ def get_text_width(text, font_size):
     return sum(HELVETICA['unicode_to_width'].get(ord(c), 0) for c in text) * font_size / 1000
 
 
+def get_text_ascender(font_size):
+    return HELVETICA['ascender'] * font_size / 1000
+
+
+def get_text_descender(font_size):
+    return abs(HELVETICA['descender']) * font_size / 1000
+
+
+def get_text_height(font_size):
+    return get_text_ascender(font_size) + get_text_descender(font_size)
+
+
 def draw_label_v2(root, x1, x2, y, font_size, options):
     """
-    Draw the label below the y coordinate, and in the middle of the x1, x2 coordinates.
+    Draw the label right below the y coordinate, and in the middle of the x1, x2 coordinates.
     If there are multiple lines, expand the label downwards.
+    :returns the lower vertical coordinate of the label drawn
     """
     label = options.get('label')
     if not label:
-        return
-    MARGIN = 1  # upper, left and right margin
+        return y
+    MARGIN_UP_DOWN = font_size
+    MARGIN_LEFT_RIGHT = 2
+    scaled_ascender = get_text_ascender(font_size)
+    text_height = get_text_height(font_size)
     g = ET.Element('g')
-    scaled_ascender = HELVETICA['ascender'] * font_size / 1000
-    y += scaled_ascender + MARGIN
+    # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
+    y += scaled_ascender
+    # shift label upward if multiline
+    if x1 == x2:
+        y -= text_height * len(label.split('\n'))
     for idx, lab in enumerate(label.split('\n')):  # labels may contain newline character
         # Draw Boxes
         text_width = get_text_width(lab, font_size)
         if x1 == x2:
-            x = x1
+            x = x1 + 3 * MARGIN_LEFT_RIGHT
         else:
             x = min(x1, x2) + abs(x2 - x1) / 2 - text_width / 2
-        text_height = (HELVETICA['ascender'] - HELVETICA['descender']) * font_size / 1000
-        y += idx * text_height
-        if lab == '':
-            continue
+        y += text_height if idx != 0 else 0
         rect = ET.SubElement(g, 'rect', {
-            'x': str(x - MARGIN),
+            'x': str(x - MARGIN_LEFT_RIGHT),
             'y': str(y - scaled_ascender),
-            'width': str(text_width + 2 * MARGIN),
+            'width': str(text_width + 2 * MARGIN_LEFT_RIGHT),
             'height': str(text_height),
             'fill': options.get('textbgcolour') or options.get('textbgcolor') or 'white',
         })
@@ -95,55 +111,15 @@ def draw_label_v2(root, x1, x2, y, font_size, options):
             root.attrib['width'] = str(max_x)
         # Draw text inside the box
         text = ET.SubElement(g, 'text', {
-            'x': str(x - MARGIN),
+            'x': str(x - MARGIN_LEFT_RIGHT),
             'y': str(y),
             'style': f"font-size: {font_size}",
             'font-family': 'Helvetica',
         })
         text.text = lab
     root.append(g)
-
-
-def draw_label(root, x1, x2, y1, y2, font_size, options, y_offset_factor=1, arc_to_self=False):
-    label = options.get('label')
-    if not label:
-        return
-    MARGIN = 1  # margin before and after the label
-    OFFSET = HELVETICA['ascender']/2 * font_size/1000  # offset above the arc
-    g = ET.Element('g')
-    lines_count = len(label.split('\n'))
-    for idx, lab in enumerate(label.split('\n')):  # labels may contain newline character
-        # Draw Boxes
-        text_width = get_text_width(lab, font_size)
-        if arc_to_self:
-            x = x1 + OFFSET
-            y = (y1 - OFFSET)
-        else:
-            x = min(x1, x2) + abs(x2 - x1) / 2 - text_width / 2
-            y = ((y1 + y2) / 2 - y_offset_factor * OFFSET)
-        text_height = (HELVETICA['ascender'] - HELVETICA['descender']) * font_size / 1000
-        scaled_ascender = HELVETICA['ascender'] * font_size / 1000
-        y -= (lines_count - idx - 1) * text_height
-        box_x = x - MARGIN
-        if lab == '':
-            continue
-        rect = ET.SubElement(g, 'rect', {
-            'x': str(box_x),
-            'y': str(y - scaled_ascender),
-            'width': str(text_width + 2 * MARGIN),
-            'height': str(text_height),
-            'fill': options.get('textbgcolour') or options.get('textbgcolor') or 'white',
-        })
-        # Sometimes, the text goes beyond the SVG frame
-        max_x = float(rect.attrib['x']) + float(rect.attrib['width'])
-        if max_x > float(root.attrib['width']):
-            root.attrib['width'] = str(max_x)
-        # Draw text inside the box
-        text = ET.SubElement(g, 'text', {
-            'x': str(box_x),
-            'y': str(y),
-            'style': f"font-size: {font_size}",
-            'font-family': 'Helvetica',
-        })
-        text.text = lab
-    root.append(g)
+    # add the scaled descender to get the lowest vertical coordinate of the label
+    y += get_text_descender(font_size)
+    # add the margin
+    y += MARGIN_UP_DOWN
+    return y

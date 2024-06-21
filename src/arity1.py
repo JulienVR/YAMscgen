@@ -14,8 +14,7 @@ class Arity1:
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
         # Expand lifelines: margin
         offset = utils.get_offset_from_label_multiple_lines(self.options.get('label', ''), builder.font_size)
-        y1 = builder.current_height + offset
-        y2 = y1 + builder.margin
+        y2 = builder.current_height + offset + builder.margin
         utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options={})
         builder.current_height = y2
         # Expand lifelines: element
@@ -24,10 +23,22 @@ class Arity1:
         # Label
         x1 = min(builder.participants_coordinates.values())
         x2 = max(builder.participants_coordinates.values())
-        y = y1 + (y2 - y1)/2
-        y_offset_factor = -1 if self._name in ("ExtraSpace", "OmittedSignal") else 1
-        utils.draw_label(root, x1, x2, y, y, builder.font_size, self.options, y_offset_factor=y_offset_factor)
-        return y2
+        y = y1 + (y2 - y1)/2 - offset/2
+        g = ET.SubElement(root, 'g')
+        y2 = utils.draw_label_v2(root, x1, x2, y, builder.font_size, self.options)
+        if self._name == 'GeneralComment':
+            y = y1 + (y2 - y1) / 2
+            color = self.options.get('linecolour') or self.options.get('linecolor') or "black"
+            ET.SubElement(g, 'line', {
+                **self.options,
+                'stroke': color,
+                'x1': str(min(builder.participants_coordinates.values())),
+                'y1': str(y),
+                'x2': str(max(builder.participants_coordinates.values())),
+                'y2': str(y),
+                'stroke-dasharray': '5, 3',
+            })
+        return y2, extra_options
 
 
 class ExtraSpace(Arity1):
@@ -44,22 +55,6 @@ class GeneralComment(Arity1):
         self._name = 'GeneralComment'
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        offset = utils.get_offset_from_label_multiple_lines(self.options.get('label', ''), builder.font_size)
-        y1 = builder.current_height + builder.margin + offset
-        y2 = y1 + builder.vertical_step
-        y = (y1 + y2)/2
-        x1 = min(builder.participants_coordinates.values()) * 0.5
-        x2 = x1 + max(builder.participants_coordinates.values())
-        color = self.options.get('linecolour') or self.options.get('linecolor') or "black"
-        ET.SubElement(root, 'line', {
-            **self.options,
-            'stroke': color,
-            'x1': str(x1),
-            'y1': str(y),
-            'x2': str(x2),
-            'y2': str(y),
-            'stroke-dasharray': '5, 3',
-        })
         return super().draw(builder, root, extra_options)
 
 

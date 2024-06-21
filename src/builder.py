@@ -11,7 +11,7 @@ class Builder:
         self.margin = self.vertical_step / 2  # margin BEFORE drawing any element
         self.stylesheets = []
         self.current_height = 0
-        self.font_size = 20
+        self.font_size = self.parser.context['fontsize']
 
     def draw_participants(self, root, height):
         """ Draw participants (on top of the image) """
@@ -46,9 +46,15 @@ class Builder:
         for line in self.parser.elements:
             g = ET.SubElement(root, 'g')
             # draw all the elements on the line
-            y2_list = [element.draw(builder=self, root=root) for element in line]
+            y2_list = []
+            extra_options = {}
+            for element in line:
+                y2, options = element.draw(builder=self, root=root)
+                assert isinstance(y2, float), "The 'draw' method should return a tuple (float, dict)"
+                y2_list.append(y2)
+                extra_options.update(**(options or {}))
             # expand the participants lifelines using the maximum y2 coordinate
-            utils.expand_lifelines(self, g, y1=self.current_height, y2=max(y2_list), extra_options={})
+            utils.expand_lifelines(self, g, y1=self.current_height, y2=max(y2_list), extra_options=extra_options)
             self.current_height = max(y2_list)
 
         # add a bottom margin

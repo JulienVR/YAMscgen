@@ -150,8 +150,14 @@ class Arc(Arity2):
         self.draw_arrow_tip(root, arrow_id, color)
 
         # Label (last element drawn since the rendering order is based on the document order)
-        utils.draw_label(root, x1, x2, y1, y2, builder.font_size, self.options, arc_to_self=self.src == self.dst)
-        return y2
+        label_lines = len(self.options.get('label', '').split('\n'))
+        if label_lines > 1 and x1 != x2:
+            # center multiline labels around the arc
+            text_height = utils.get_text_height(builder.font_size)
+            label_height = text_height * label_lines
+            y1 -= label_height/2
+        utils.draw_label_v2(root, x1, x2, y1-builder.font_size/2, builder.font_size, self.options)
+        return y2, {}
 
 
 class Box(Arity2):
@@ -163,33 +169,41 @@ class Box(Arity2):
         return f"<Box> {self.src} {self.element} {self.dst} {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        # TODO
-        space_per_participant = builder.parser.context['width'] / len(builder.participants_coordinates.keys())
-        offset = utils.get_offset_from_label_multiple_lines(self.options.get('label', ''), builder.font_size)
-
+        space_per_participant = float(root.attrib['width']) / len(builder.participants_coordinates.keys())
         x1 = builder.participants_coordinates[self.src] - space_per_participant * 0.4
         y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
-        y2 = y1 + builder.parser.context['arcgradient'] + offset
 
-        if self.element == 'box':
-            # rect
-            pass
-        elif self.element == 'rbox':
-            # rect with 'ry' and 'rx'
-            pass
-        elif self.element == 'abox':
-            # annoying path
-            pass
+        if self.element in ('box', 'rbox'):
+            rectangle = ET.SubElement(root, 'rect', {
+                **self.options,
+                'x': str(x1),
+                'y': str(y1),
+                'width': str(x2-x1),
+                'stroke': 'black',
+                'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
+                'rx': '5' if self.element == 'rbox' else '0',
+                'ry': '5' if self.element == 'rbox' else '0',
+            })
         else:
-            # note: annoying path again
-            pass
-
-        ET.SubElement(root, 'path', {
-            **self.options,
-            'd': f"M {x1},{y1} L {x2},{y1} L {x2}, {y2} L {x1}, {y2} z",
-            'stroke': 'red',
-            'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
-        })
-        utils.draw_label_v2(root, x1, x2, y1, builder.font_size, self.options)
-        return y2
+            rectangle = ET.SubElement(root, 'path', {
+                **self.options,
+                'stroke': 'black',
+                'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
+            })
+        # draw label
+        y2 = utils.draw_label_v2(root, x1, x2, y1+builder.font_size, builder.font_size, self.options)
+        # update the rectangle based on the lower vertical coordinate
+        if self.element in ('box', 'rbox'):
+            rectangle.attrib['height'] = str(y2 - y1)
+        elif self.element == 'abox':
+            alpha = 5  # height of the lateral triangles
+            rectangle.attrib['d'] = f"M {x1},{y1} L {x2},{y1} L {x2 + alpha},{y1 + (y2 - y1)/2}" \
+                                    f"L {x2},{y2} L {x1},{y2} L {x1 - alpha},{y1 + (y2 - y1)/2} z"
+        else:
+            # note
+            alpha = 10  # amplitude of the upper right corner
+            rectangle.attrib['d'] = f"M {x1},{y1} L {x2 - alpha},{y1} L {x2 - alpha},{y1 + alpha}" \
+                                    f"L {x2},{y1 + alpha} M {x2 - alpha}, {y1} L {x2}, {y1 + alpha}" \
+                                    f"L {x2},{y2} L {x1},{y2} L {x1},{y1}"
+        return y2, extra_options
