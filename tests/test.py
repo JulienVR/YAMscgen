@@ -30,20 +30,31 @@ class Test(unittest.TestCase):
         print(builder.parser)
         image = builder.generate()
 
-    def test2(self):
-        """
-        Vertical step = 28 (arbitrary value) + arcgradient = 36
-        """
+    def test2_low_arcgradient(self):
         builder = Builder("""msc {
-        
-         # Comment
-         arcgradient = "8";
-        
+        arcgradient="10";
          a [label="Client"],b [label="Server"];
         
          a=>b [label="data1"];
          a-xb [label="data2"];
-         a=>b [label="data3"];
+         a=>b [label="data3\nanother line\nagain another one"];
+         a<=b [label="ack1, nack2"];
+         a=>b [label="data2", arcskip="1"];
+         |||;
+         a<=b [label="ack3"];
+         |||;
+        }""")
+        print(builder.parser)
+        image = builder.generate()
+
+    def test2_avg_arcgradient(self):
+        builder = Builder("""msc {
+        arcgradient="30";
+         a [label="Client"],b [label="Server"];
+
+         a=>b [label="data1"];
+         a-xb [label="data2"];
+         a=>b [label="data3\nanother line\nagain another one"];
          a<=b [label="ack1, nack2"];
          a=>b [label="data2", arcskip="1"];
          |||;
@@ -99,14 +110,60 @@ class Test(unittest.TestCase):
         print(builder.parser)
         image = builder.generate()
 
-    def test_arc_to_self_and_arcgradient(self):
+    def test_arc_to_self(self):
         builder = Builder("""msc {
-        arcgradient = "30";
+        arcgradient = "10";
         # The entities
         A, B;
         
         # Next four on same line due to ','
-        A -> B [label = "this is label ppp", linecolor="red", textbgcolour = "grey"];
+        A -> B [label = "this is label ppp", linecolor="red", textbgcolour = "turquoise"];
+        B -> A [label = "this is label", linecolor="red"];
+        B => B [label = "this is label 1", linecolour="blue", textbgcolor = "turquoise"];
+        A => B [label = "this is label 1", linecolour="blue"];
+        A >> A [label = "label >>"]; 
+        A << B [label = "label >>"]; 
+        A =>> B [label = "label =>>", textbgcolour = "turquoise"];
+        A :> B [label = "label :>"];
+        A <: B [label = "label :> bla bla bla"];
+        B <: B [label = "label :> bla bla bla"];
+        B -x A [label = "label -x"];
+        }
+        """)
+        print(builder.parser)
+        image = builder.generate()
+
+    def test_arc_to_self_avg_arcgradient(self):
+        builder = Builder("""msc {
+        arcgradient = "30";
+        # The entities
+        A, B;
+
+        # Next four on same line due to ','
+        A -> B [label = "this is label ppp", linecolor="red", textbgcolour = "turquoise"];
+        B -> A [label = "this is label", linecolor="red"];
+        B => B [label = "this is label 1", linecolour="blue", textbgcolor = "turquoise"];
+        A => B [label = "this is label 1", linecolour="blue"];
+        A >> A [label = "label >>"]; 
+        A << B [label = "label >>"]; 
+        A =>> B [label = "label =>>", textbgcolour = "turquoise"];
+        A :> B [label = "label :>"];
+        A <: B [label = "label :> bla bla bla"];
+        B <: B [label = "label :> bla bla bla"];
+        B -x A [label = "label -x"];
+        }
+        """)
+        print(builder.parser)
+        image = builder.generate()
+
+    def test_arc_to_self_high_arcgradient(self):
+        builder = Builder("""msc {
+        arcgradient = "50";
+        # The entities
+        A, B;
+
+        # Next four on same line due to ','
+        A -> B [label = "this is label ppp", linecolor="red", textbgcolour = "turquoise"];
         B -> A [label = "this is label", linecolor="red"];
         B => B [label = "this is label 1", linecolour="blue", textbgcolor = "turquoise"];
         A => B [label = "this is label 1", linecolour="blue"];
@@ -146,7 +203,7 @@ class Test(unittest.TestCase):
         arcgradient = "30";
         a, b;
         a->b [label="arc"];
-        --- [label="general comment\nwhich is on several lines\nanother one\nanother\nanother", textbgcolor="turquoise"];
+        --- [label="general comment\nwhich is on several lines\nand another one", textbgcolor="turquoise"];
         a->b [label="fourth arc"];
         --- [label="general comment", textbgcolor="turquoise"];
         a->b;

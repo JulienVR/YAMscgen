@@ -80,7 +80,7 @@ def draw_label_v2(root, x1, x2, y, font_size, options):
     label = options.get('label')
     if not label:
         return y
-    MARGIN_UP_DOWN = font_size
+    MARGIN_DOWN = font_size
     MARGIN_LEFT_RIGHT = 2
     scaled_ascender = get_text_ascender(font_size)
     text_height = get_text_height(font_size)
@@ -111,7 +111,7 @@ def draw_label_v2(root, x1, x2, y, font_size, options):
             root.attrib['width'] = str(max_x)
         # Draw text inside the box
         text = ET.SubElement(g, 'text', {
-            'x': str(x - MARGIN_LEFT_RIGHT),
+            'x': str(x),
             'y': str(y),
             'style': f"font-size: {font_size}",
             'font-family': 'Helvetica',
@@ -121,5 +121,5 @@ def draw_label_v2(root, x1, x2, y, font_size, options):
     # add the scaled descender to get the lowest vertical coordinate of the label
     y += get_text_descender(font_size)
     # add the margin
-    y += MARGIN_UP_DOWN
+    y += MARGIN_DOWN
     return y

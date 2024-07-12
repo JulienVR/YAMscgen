@@ -15,7 +15,7 @@ class Arity1:
         # Expand lifelines: margin
         offset = utils.get_offset_from_label_multiple_lines(self.options.get('label', ''), builder.font_size)
         y2 = builder.current_height + offset + builder.margin
-        utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options={})
+        utils.expand_lifelines(builder, root, y1=builder.current_height, y2=y2, extra_options=self.options)
         builder.current_height = y2
         # Expand lifelines: element
         y1 = builder.current_height
@@ -25,7 +25,7 @@ class Arity1:
         x2 = max(builder.participants_coordinates.values())
         y = y1 + (y2 - y1)/2 - offset/2
         g = ET.SubElement(root, 'g')
-        y2 = utils.draw_label_v2(root, x1, x2, y, builder.font_size, self.options)
+        y2 = utils.draw_label_v2(root, x1, x2, y-builder.font_size*2, builder.font_size, self.options)
         if self._name == 'GeneralComment':
             y = y1 + (y2 - y1) / 2
             color = self.options.get('linecolour') or self.options.get('linecolor') or "black"

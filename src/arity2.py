@@ -150,13 +150,19 @@ class Arc(Arity2):
         self.draw_arrow_tip(root, arrow_id, color)
 
         # Label (last element drawn since the rendering order is based on the document order)
+        if x1 != x2:
+            # vertically center the label between start and end point of the arc...
+            y = y1 + (y2 - y1)/2 - builder.font_size*1.1
+        else:
+            # ... except for the arc to self
+            y = y1 - builder.font_size/2
+        # multiline labels are put above the arc
         label_lines = len(self.options.get('label', '').split('\n'))
         if label_lines > 1 and x1 != x2:
-            # center multiline labels around the arc
             text_height = utils.get_text_height(builder.font_size)
-            label_height = text_height * label_lines
-            y1 -= label_height/2
-        utils.draw_label_v2(root, x1, x2, y1-builder.font_size/2, builder.font_size, self.options)
+            label_height = text_height * (label_lines-1)
+            y -= label_height
+        utils.draw_label_v2(root, x1, x2, y, builder.font_size, self.options)
         return y2, {}
 
 
