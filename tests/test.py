@@ -39,7 +39,7 @@ class Test(unittest.TestCase):
          a-xb [label="data2"];
          a=>b [label="data3\nanother line\nagain another one"];
          a<=b [label="ack1, nack2"];
-         a=>b [label="data2", arcskip="1"];
+         a=>b [arcskip="2"], a=>b [label="no arcskip VS arcskip"];
          |||;
          a<=b [label="ack3"];
          |||;
@@ -187,6 +187,29 @@ class Test(unittest.TestCase):
         }""")
         print(builder.parser)
         image = builder.generate()
+
+    def test_broadcast_arc(self):
+        builder = Builder("""msc {
+        arcgradient = "30";
+        a, b, c;
+        a->* [label = "broadcast"];
+        *<-a [label = "broadcast"];
+        a note c [label = "Broadcast arc"];
+        }""")
+        print(builder.parser)
+        image = builder.generate()
+
+    def test_broadcast_arc_bis(self):
+        builder = Builder("""msc {
+        arcgradient = "30";
+        a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"], b [label = "BBB", font-size="16"], c, d;
+        b->* [label = "broadcast with custom key"];
+        b->* [label = "broadcast", textcolor="red"];
+        *<-b [label = "broadcast\non several lines\nthis time\nreally!", textbgcolor="turquoise", linecolor="blue"];
+        b note c [label = "Broadcast arc"];
+        }""")
+        print(builder.parser)
+        image = builder.generate()
         
     def test4(self):
         line = ' ... [label = "this is ...", ID="1"], --- [label = "2nd", ID="2"];'
@@ -197,6 +220,15 @@ class Test(unittest.TestCase):
         line = ' ...  , --- ;'
         lines = Parser.split_elements_on_line(line)
         self.assertEqual(lines, ['...', '---'])
+
+    def test_parse_options(self):
+        line = 'a->b [label="test label,\non several; lines", arcskip="1", fill="red"]'
+        options = Parser.parse_options(line)
+        self.assertEqual(options, {
+            'label': 'test label,\non several; lines',
+            'arcskip': '1',
+            'fill': 'red',
+        })
 
     def test_arity1_elements(self):
         builder = Builder("""msc {

@@ -13,7 +13,7 @@ class Arity2:
 
 class Arc(Arity2):
     def __init__(self, src, dst, element, options):
-        assert element in ('->', '=>', '>>', '=>>', ':>', '-x'), f"Unsupported type: {element}"
+        assert element in ('->', '=>', '>>', '=>>', ':>', '-x', '->*'), f"Unsupported type: {element}"
         super().__init__(src, dst, element, options)
 
     def __repr__(self):
@@ -74,54 +74,53 @@ class Arc(Arity2):
             # Special case: curved arc
             arc_magnitude = 100
             ET.SubElement(root, 'path', {
-                **self.options,
                 'stroke': '' if self.element == ':>' else color,
                 'd': f"M{x1},{y1} C{x1+arc_magnitude},{y1} {x1+arc_magnitude},{y2} {x2},{y2}",
                 'fill': 'none',
                 'stroke-dasharray': '5, 3' if self.element == '>>' else '',
                 'marker-end': f"url(#{arrow_id})",
+                **self.options,
             })
             if self.element == ':>':
                 # approach followed by mscgen: offset the 2 curves above and below the standard one
                 ET.SubElement(root, 'path', {
-                    **self.options,
                     'stroke': color,
                     'd': f"M{x1},{y1-y_delta} C{x1 + arc_magnitude},{y1-y_delta} {x1 + arc_magnitude},{y2-y_delta} {x2+15},{y2-y_delta}"
                          f"M{x1},{y1+y_delta} C{x1 + arc_magnitude},{y1+y_delta} {x1 + arc_magnitude},{y2+y_delta} {x2+15},{y2+y_delta}",
                     'fill': 'none',
                     'stroke-dasharray': '5, 3' if self.element == '>>' else '',
+                    **self.options,
                 })
         elif self.element == '-x':
             # Special case: half line arc
             ET.SubElement(root, 'line', {
-                **self.options,
                 'stroke': color,
                 'x1': str(x1),
                 'y1': str(y1),
                 'x2': str(x2 + (x1-x2)*0.25),
                 'y2': str(y2 + (y1-y2)*0.25),
                 'marker-end': f"url(#{arrow_id})",
+                **self.options,
             })
         elif self.element == ':>':
             # Double line arc
             shorten_factor = 0.04  # both lines should be shortened, since the tip is in between
             ET.SubElement(root, 'path', {
-                **self.options,
                 'stroke': color,
                 'd': f"M {x1} {y1+y_delta} L {x2 + (x1-x2)*shorten_factor} {y2+y_delta + (y1-y2)*shorten_factor} "
                      f"M {x1} {y1-y_delta} L {x2 + (x1-x2)*shorten_factor} {y2-y_delta + (y1-y2)*shorten_factor}",
+                **self.options,
             })
             # invisible vertex, on which the marker is drawn
             ET.SubElement(root, 'path', {
-                **self.options,
                 'stroke': '',
                 'd': f"M {x1} {y1} L {x2} {y2}",
                 'marker-end': f"url(#{arrow_id})",
+                **self.options,
             })
         else:
             # Standard line arc
             ET.SubElement(root, 'line', {
-                **self.options,
                 'stroke': color,
                 'x1': str(x1),
                 'y1': str(y1),
@@ -129,9 +128,28 @@ class Arc(Arity2):
                 'y2': str(y2),
                 'marker-end': f"url(#{arrow_id})",
                 'stroke-dasharray': '5, 3' if self.element == '>>' else '',
+                **self.options,
             })
 
     def draw(self, builder, root: ET.Element):
+        if self.element == '->*':
+            # broadcast: equivalent to simple arcs to every other participant
+            participants = list(builder.participants_coordinates.keys())
+            participants.remove(self.src)
+            y2_list = []
+            extra_options = {}
+            self.options['ignore_label'] = '1'
+            for dst in participants:
+                y2, options = Arc(self.src, dst, '->', self.options).draw(builder, root)
+                y2_list.append(y2)
+                extra_options.update(**(options or {}))
+            # draw label, centered around the whole graph
+            x1 = min(builder.participants_coordinates.values())
+            x2 = max(builder.participants_coordinates.values())
+            y = builder.current_height + builder.font_size*2.3
+            utils.draw_label(root, x1, x2, y, builder.font_size, self.options)
+            return max(y2_list), extra_options
+
         # Arc color
         color = self.options.get('linecolour') or self.options.get('linecolor') or "black"
         arrow_id = self.get_arrow_tip_id(color)
@@ -140,7 +158,7 @@ class Arc(Arity2):
         x1 = builder.participants_coordinates[self.src]
         y1 = builder.current_height + builder.margin + offset
         x2 = builder.participants_coordinates[self.dst]
-        y2 = y1 + builder.parser.context['arcgradient']
+        y2 = y1 + builder.parser.context['arcgradient'] * (float(self.options.get('arcskip', '0'))+1)
         if self.src == self.dst and builder.parser.context['arcgradient'] < 10:
             # avoid having a squashed arc to self
             y2 += 10
@@ -162,7 +180,8 @@ class Arc(Arity2):
             text_height = utils.get_text_height(builder.font_size)
             label_height = text_height * (label_lines-1)
             y -= label_height
-        utils.draw_label_v2(root, x1, x2, y, builder.font_size, self.options)
+        if not self.options.get('ignore_label'):
+            utils.draw_label(root, x1, x2, y, builder.font_size, self.options)
         return y2, {}
 
 
@@ -198,7 +217,7 @@ class Box(Arity2):
                 'fill': self.options.get('textbgcolour') or self.options.get('textbgcolor') or 'white',
             })
         # draw label
-        y2 = utils.draw_label_v2(root, x1, x2, y1+builder.font_size, builder.font_size, self.options)
+        y2 = utils.draw_label(root, x1, x2, y1+builder.font_size, builder.font_size, self.options)
         # update the rectangle based on the lower vertical coordinate
         if self.element in ('box', 'rbox'):
             rectangle.attrib['height'] = str(y2 - y1)

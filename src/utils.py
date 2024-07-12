@@ -71,7 +71,7 @@ def get_text_height(font_size):
     return get_text_ascender(font_size) + get_text_descender(font_size)
 
 
-def draw_label_v2(root, x1, x2, y, font_size, options):
+def draw_label(root, x1, x2, y, font_size, options):
     """
     Draw the label right below the y coordinate, and in the middle of the x1, x2 coordinates.
     If there are multiple lines, expand the label downwards.
@@ -113,8 +113,10 @@ def draw_label_v2(root, x1, x2, y, font_size, options):
         text = ET.SubElement(g, 'text', {
             'x': str(x),
             'y': str(y),
-            'style': f"font-size: {font_size}",
+            'font-size': str(font_size),
             'font-family': 'Helvetica',
+            'fill': options.get('textcolour') or options.get('textcolor') or 'black',
+            **options,
         })
         text.text = lab
     root.append(g)

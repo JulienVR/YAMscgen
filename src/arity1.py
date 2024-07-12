@@ -25,7 +25,7 @@ class Arity1:
         x2 = max(builder.participants_coordinates.values())
         y = y1 + (y2 - y1)/2 - offset/2
         g = ET.SubElement(root, 'g')
-        y2 = utils.draw_label_v2(root, x1, x2, y-builder.font_size*2, builder.font_size, self.options)
+        y2 = utils.draw_label(root, x1, x2, y-builder.font_size*2, builder.font_size, self.options)
         if self._name == 'GeneralComment':
             y = y1 + (y2 - y1) / 2
             color = self.options.get('linecolour') or self.options.get('linecolor') or "black"

@@ -76,16 +76,7 @@ class Parser:
         attrs_string = re.findall(REGEX_ATTRIBUTES, line, re.DOTALL)  # DOTALL: in case a label contains "\n"
         options = {}
         if attrs_string:
-            for attr in ATTRS:
-                if isinstance(attr, tuple):
-                    attr_re = '(' + '|'.join(attr) + ')'
-                    val = re.findall(f'{attr_re} ?= ?"(.*?)"', attrs_string[0], re.DOTALL)
-                    if val:
-                        options[val[0][0]] = val[0][1]
-                else:
-                    val = re.findall(f'{attr} ?= ?"(.*?)"', attrs_string[0], re.DOTALL)
-                    if val:
-                        options[attr] = val[0]
+            options = dict(re.findall('([\w-]*) ?= ?"(.*?)"', attrs_string[0], re.DOTALL))
         return options
 
     def parse_context(self, line):
@@ -97,11 +88,17 @@ class Parser:
     def parse_participants(self, line):
         """ Parse the participant(s) on a given line """
         participants = []
-        for name in line.split(','):
+        line_without_options = re.sub(r"\[(.*?)\]", '', line, flags=re.DOTALL)
+        for name in line_without_options.split(','):
             dirty_name = name.strip(';')
+            assert ' ' not in dirty_name.strip(), f"'{dirty_name}' is not a valid participant name."
+            options_match = re.findall(f"({dirty_name} ?\[.*?\])", line, flags=re.DOTALL)
+            options = {}
+            if options_match:
+                options = self.parse_options(options_match[0])
             participants.append({
                 'name': re.sub(REGEX_ATTRIBUTES, '', dirty_name).strip(),
-                'options': self.parse_options(dirty_name),
+                'options': options,
             })
         assert participants, f"Could not parse the participants on line {line}"
         self.participants = participants
@@ -122,7 +119,7 @@ class Parser:
     def parse_arity2(self, el):
         """ Parse the arcs/boxes on a given line """
         el_txt = re.sub(REGEX_ATTRIBUTES, '', el).strip()
-        match = re.findall("(\S*?) ?(=>>|<<=|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|->\*|\*<-|box|rbox|abox|note) ?(\S*)", el_txt)
+        match = re.findall("(\S*?) ?(=>>|<<=|->\*|\*<-|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|box|rbox|abox|note) ?(\S*)", el_txt)
         assert match, f"Could not parse arc: '{el_txt}'"
         src, dst = match[0][0], match[0][2]
         arc = match[0][1]

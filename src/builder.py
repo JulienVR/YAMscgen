@@ -7,30 +7,26 @@ class Builder:
     def __init__(self, input):
         self.parser = parser.Parser(input)
         self.participants_coordinates = {}
-        self.vertical_step = 28 + self.parser.context['arcgradient']  # margin AFTER drawing any element
-        self.margin = self.vertical_step / 2  # margin BEFORE drawing any element
+        self.vertical_step = 28 + self.parser.context['arcgradient']  # margin after drawing any element
+        self.margin = self.vertical_step / 2  # margin before drawing any element
         self.stylesheets = []
         self.current_height = 0
         self.font_size = self.parser.context['fontsize']
 
     def draw_participants(self, root, height):
         """ Draw participants (on top of the image) """
+        # TODO: draw colors, support going to next line, highlight
         relative_position = float(root.attrib['width']) / (2 * len(self.parser.participants))
         x = relative_position
+        y2_list = []
         for entity in self.parser.participants:
-            label = entity['options'].pop('label', None)
             self.participants_coordinates[entity['name']] = x
-            node = ET.SubElement(root, 'text', {
-                'font-size': str(self.font_size),
-                'font-family': 'Helvetica',
-                'fill': 'black',
-                'text-anchor': 'middle',
-                **entity['options'],
-                'x': str(x),
-                'y': str(height),
-            })
-            node.text = label or entity['name']
+            if not entity['options'].get('label'):
+                entity['options']['label'] = entity['name']
+            y2 = utils.draw_label(root, x-1, x+1, height, self.font_size, entity['options'])
+            y2_list.append(y2)
             x += 2 * relative_position
+        return min(y2_list)
 
     def generate(self):
         root = ET.Element('svg', {
@@ -41,8 +37,8 @@ class Builder:
         ET.SubElement(root, 'defs')
 
         self.current_height = self.font_size
-        self.draw_participants(root, self.current_height)
-        self.current_height += 4
+        y2 = self.draw_participants(root, self.current_height)
+        self.current_height = y2
         for line in self.parser.elements:
             g = ET.SubElement(root, 'g')
             # draw all the elements on the line
