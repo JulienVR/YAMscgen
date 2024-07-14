@@ -26,45 +26,53 @@ HELVETICA = {
 
 
 def random_color():
-    """ Generates a random hex color """
-    hex_val = list(str(i) for i in range(10)) + ['a', 'b', 'c', 'd', 'e', 'f']
+    """Generates a random hex color"""
+    hex_val = list(str(i) for i in range(10)) + ["a", "b", "c", "d", "e", "f"]
     return "#" + "".join(random.choices(hex_val, k=6))
 
 
 def expand_lifelines(builder, root: ET.Element, y1, y2, extra_options: dict):
-    """ Increases each participant's lifeline using the vertical_step """
+    """Increases each participant's lifeline using the vertical_step"""
     for coord in builder.participants_coordinates.values():
-        ET.SubElement(root, 'line', {
-            #'stroke': random_color(),
-            'stroke': 'black',
-            'x1': str(coord),
-            'y1': str(y1),
-            'x2': str(coord),
-            'y2': str(y2),
-            **extra_options,
-        })
+        ET.SubElement(
+            root,
+            "line",
+            {
+                #'stroke': random_color(),
+                "stroke": "black",
+                "x1": str(coord),
+                "y1": str(y1),
+                "x2": str(coord),
+                "y2": str(y2),
+                **extra_options,
+            },
+        )
 
 
 def get_offset_from_label_multiple_lines(label, font_size):
-    """ A label may have multiple lines, hence needing the arcs to be shifted downwards. """
+    """A label may have multiple lines, hence needing the arcs to be shifted downwards."""
     offset = 0
-    label_lines_count = len(label.split('\n'))
+    label_lines_count = len(label.split("\n"))
     if label_lines_count:
         offset = label_lines_count * font_size
     return offset
 
 
 def get_text_width(text, font_size):
-    """ Returns the text length in pixels. """
-    return sum(HELVETICA['unicode_to_width'].get(ord(c), 0) for c in text) * font_size / 1000
+    """Returns the text length in pixels."""
+    return (
+        sum(HELVETICA["unicode_to_width"].get(ord(c), 0) for c in text)
+        * font_size
+        / 1000
+    )
 
 
 def get_text_ascender(font_size):
-    return HELVETICA['ascender'] * font_size / 1000
+    return HELVETICA["ascender"] * font_size / 1000
 
 
 def get_text_descender(font_size):
-    return abs(HELVETICA['descender']) * font_size / 1000
+    return abs(HELVETICA["descender"]) * font_size / 1000
 
 
 def get_text_height(font_size):
@@ -77,20 +85,22 @@ def draw_label(root, x1, x2, y, font_size, options):
     If there are multiple lines, expand the label downwards.
     :returns the lower vertical coordinate of the label drawn
     """
-    label = options.get('label')
+    label = options.get("label")
     if not label:
         return y
     MARGIN_DOWN = font_size
     MARGIN_LEFT_RIGHT = 2
     scaled_ascender = get_text_ascender(font_size)
     text_height = get_text_height(font_size)
-    g = ET.Element('g')
+    g = ET.Element("g")
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
     # shift label upward if multiline
     if x1 == x2:
-        y -= text_height * len(label.split('\n'))
-    for idx, lab in enumerate(label.split('\n')):  # labels may contain newline character
+        y -= text_height * len(label.split("\n"))
+    for idx, lab in enumerate(
+        label.split("\n")
+    ):  # labels may contain newline character
         # Draw Boxes
         text_width = get_text_width(lab, font_size)
         if x1 == x2:
@@ -98,26 +108,38 @@ def draw_label(root, x1, x2, y, font_size, options):
         else:
             x = min(x1, x2) + abs(x2 - x1) / 2 - text_width / 2
         y += text_height if idx != 0 else 0
-        rect = ET.SubElement(g, 'rect', {
-            'x': str(x - MARGIN_LEFT_RIGHT),
-            'y': str(y - scaled_ascender),
-            'width': str(text_width + 2 * MARGIN_LEFT_RIGHT),
-            'height': str(text_height),
-            'fill': options.get('textbgcolour') or options.get('textbgcolor') or 'white',
-        })
+        rect = ET.SubElement(
+            g,
+            "rect",
+            {
+                "x": str(x - MARGIN_LEFT_RIGHT),
+                "y": str(y - scaled_ascender),
+                "width": str(text_width + 2 * MARGIN_LEFT_RIGHT),
+                "height": str(text_height),
+                "fill": options.get("textbgcolour")
+                or options.get("textbgcolor")
+                or "white",
+            },
+        )
         # Sometimes, the text goes beyond the SVG frame
-        max_x = float(rect.attrib['x']) + float(rect.attrib['width'])
-        if max_x > float(root.attrib['width']):
-            root.attrib['width'] = str(max_x)
+        max_x = float(rect.attrib["x"]) + float(rect.attrib["width"])
+        if max_x > float(root.attrib["width"]):
+            root.attrib["width"] = str(max_x)
         # Draw text inside the box
-        text = ET.SubElement(g, 'text', {
-            'x': str(x),
-            'y': str(y),
-            'font-size': str(font_size),
-            'font-family': 'Helvetica',
-            'fill': options.get('textcolour') or options.get('textcolor') or 'black',
-            **options,
-        })
+        text = ET.SubElement(
+            g,
+            "text",
+            {
+                "x": str(x),
+                "y": str(y),
+                "font-size": str(font_size),
+                "font-family": "Helvetica",
+                "fill": options.get("textcolour")
+                or options.get("textcolor")
+                or "black",
+                **options,
+            },
+        )
         text.text = lab
     root.append(g)
     # add the scaled descender to get the lowest vertical coordinate of the label
