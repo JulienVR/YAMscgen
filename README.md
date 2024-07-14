@@ -1,1 +1,1 @@
-# SequenceDiagrams
+# YAMscgen
