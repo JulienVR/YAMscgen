@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
     def test_drawing_boxes(self):
         builder = Builder("""msc {
            arcgradient = "20";
-           fontsize = "15";
+           font-size = "15";
            # The entities
            A, B, C, D;
         
@@ -201,12 +201,17 @@ class Test(unittest.TestCase):
 
     def test_broadcast_arc_bis(self):
         builder = Builder("""msc {
+        # This is a comment
+        # another comment
         arcgradient = "30";
-        a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"], b [label = "BBB", font-size="16"], c, d;
+        font-size="16";
+        a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"],
+        b [label = "BBB", font-size="20", textbgcolour = "turquoise"], c, d;
         b->* [label = "broadcast with custom key"];
         b->* [label = "broadcast", textcolor="red"];
         *<-b [label = "broadcast\non several lines\nthis time\nreally!", textbgcolor="turquoise", linecolor="blue"];
-        b note c [label = "Broadcast arc"];
+        b note c [label = "Broadcast arc", textbgcolour="grey"];
+        b abox c [label = "Broadcast arc", textbgcolour="yellow"];
         }""")
         print(builder.parser)
         image = builder.generate()

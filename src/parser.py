@@ -38,14 +38,14 @@ class Parser:
         * width = set the width (pixels), default = 600
         * arcgradient = number of pixels vertical difference between the start and the end of the arc
         * wordwraparcs = TODO
-        * fontsize = set the fontsize of all labels
+        * font-size = set the fontsize of all labels
         """
         self.input = re.findall(r'msc {([\s\S]*)}', input)[0]
         self.context = {
             'hscale': 1,
             'width': 600,
             'arcgradient': 0,
-            'fontsize': 12,
+            'font-size': 12,
         }
         self.participants = []
         self.elements = []
@@ -132,9 +132,10 @@ class Parser:
             return Arc(src=src, element=arc, dst=dst, options=self.parse_options(el))
         
     def parse(self):
-        for line in self.input.split(';'):
+        input_without_comment = re.sub('#.*\n', '', self.input)
+        for line in input_without_comment.split(';'):
             # remove comment (anything from # to \n)
-            line = re.sub('#.*\n', '', line).strip()
+            line = line.strip()
             if not line:
                 continue
             if not self.participants and any(line.strip().startswith(option) for option in self.context.keys()):

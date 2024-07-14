@@ -11,11 +11,10 @@ class Builder:
         self.margin = self.vertical_step / 2  # margin before drawing any element
         self.stylesheets = []
         self.current_height = 0
-        self.font_size = self.parser.context['fontsize']
+        self.font_size = self.parser.context['font-size']
 
     def draw_participants(self, root, height):
         """ Draw participants (on top of the image) """
-        # TODO: draw colors, support going to next line, highlight
         relative_position = float(root.attrib['width']) / (2 * len(self.parser.participants))
         x = relative_position
         y2_list = []
@@ -23,7 +22,8 @@ class Builder:
             self.participants_coordinates[entity['name']] = x
             if not entity['options'].get('label'):
                 entity['options']['label'] = entity['name']
-            y2 = utils.draw_label(root, x-1, x+1, height, self.font_size, entity['options'])
+            font_size = float(entity['options'].get('font-size', self.font_size))
+            y2 = utils.draw_label(root, x-1, x+1, height, font_size, entity['options'])
             y2_list.append(y2)
             x += 2 * relative_position
         return min(y2_list)
