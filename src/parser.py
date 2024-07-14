@@ -132,7 +132,7 @@ class Parser:
             return Arc(src=src, element=arc, dst=dst, options=self.parse_options(el))
         
     def parse(self):
-        input_without_comment = re.sub('#.*\n', '', self.input)
+        input_without_comment = re.sub('\s#.*\n', '', self.input)  # /!\ do not remove 'a -> b [textbgcolour="#7fff7f"]'
         for line in input_without_comment.split(';'):
             # remove comment (anything from # to \n)
             line = line.strip()
