@@ -25,15 +25,18 @@ class Parser:
         * hscale = multiply the width by this number, default = 1
         * width = set the width (pixels), default = 600
         * arcgradient = number of pixels vertical difference between the start and the end of the arc
-        * wordwraparcs = TODO
-        * font-size = set the fontsize of all labels
+        * max-height = split image if height is larger than this: TODO
+        * font-family = font (can also be set on a specific element)
+        * font-size = font size (can also be set on a specific element)
         """
         self.input = re.findall(r"msc {([\s\S]*)}", input)[0]
         self.context = {
             "hscale": 1,
             "width": 600,
             "arcgradient": 0,
+            "max-height": 0,
             "font-size": 12,
+            "font-family": "Helvetica",
         }
         self.participants = []
         self.elements = []
@@ -77,7 +80,10 @@ class Parser:
         for arg in self.context:
             val = re.findall(f'{arg} ?= ?"(.*?)"', line)
             if val:
-                self.context[arg] = float(val[0])
+                if arg == 'font-family':
+                    self.context[arg] = val[0]
+                else:
+                    self.context[arg] = float(val[0])
 
     def parse_participants(self, line):
         """Parse the participant(s) on a given line"""

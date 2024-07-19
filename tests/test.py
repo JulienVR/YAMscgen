@@ -16,14 +16,14 @@ class Test(unittest.TestCase):
     def test1(self):
         generate_img(
             """msc {
-            hscale = "2", arcgradient = "20";
+            hscale = "2", arcgradient = "20", max-height="500";
                     
             a,b,c;
             
             a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "turquoise"];
             a -> b [ label = "this should be on line X", textbgcolor = "turquoise"],
             b-> c [ label = "this should be on line X as well", textbgcolor = "turquoise"];
-            c =>c [ label = "process(1)", textbgcolor = "turquoise"];
+            c =>c [ label = "process(1)", textbgcolor = "turquoise", font-family="monospace"];
             c=>c [ label = "process(2)" ];
             ...;
             c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "turquoise" ];

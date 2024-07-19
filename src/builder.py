@@ -27,8 +27,9 @@ class Builder:
             if not entity["options"].get("label"):
                 entity["options"]["label"] = entity["name"]
             font_size = float(entity["options"].get("font-size", self.font_size))
+            font = self.parser.context['font-family']
             y2 = utils.draw_label(
-                root, x - 1, x + 1, height, font_size, entity["options"]
+                root, x - 1, x + 1, height, font, font_size, entity["options"]
             )
             y2_list.append(y2)
             x += 2 * relative_position

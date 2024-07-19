@@ -3,8 +3,6 @@ import random
 
 # TODO generify usage of font
 HELVETICA = {
-    'capheight': 718,
-    'xheight': 523,
     'ascender': 718,
     'descender': -207,
     'unicode_to_width': {
@@ -58,7 +56,7 @@ def get_offset_from_label_multiple_lines(label, font_size):
     return offset
 
 
-def get_text_width(text, font_size):
+def get_text_width(text, font, font_size):
     """Returns the text length in pixels."""
     return (
         sum(HELVETICA["unicode_to_width"].get(ord(c), 0) for c in text)
@@ -67,19 +65,19 @@ def get_text_width(text, font_size):
     )
 
 
-def get_text_ascender(font_size):
+def get_text_ascender(font, font_size):
     return HELVETICA["ascender"] * font_size / 1000
 
 
-def get_text_descender(font_size):
+def get_text_descender(font, font_size):
     return abs(HELVETICA["descender"]) * font_size / 1000
 
 
-def get_text_height(font_size):
-    return get_text_ascender(font_size) + get_text_descender(font_size)
+def get_text_height(font, font_size):
+    return get_text_ascender(font, font_size) + get_text_descender(font, font_size)
 
 
-def draw_label(root, x1, x2, y, font_size, options):
+def draw_label(root, x1, x2, y, font, font_size, options):
     """
     Draw the label right below the y coordinate, and in the middle of the x1, x2 coordinates.
     If there are multiple lines, expand the label downwards.
@@ -90,8 +88,8 @@ def draw_label(root, x1, x2, y, font_size, options):
         return y
     MARGIN_DOWN = font_size
     MARGIN_LEFT_RIGHT = 2
-    scaled_ascender = get_text_ascender(font_size)
-    text_height = get_text_height(font_size)
+    scaled_ascender = get_text_ascender(font, font_size)
+    text_height = get_text_height(font, font_size)
     g = ET.Element("g")
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
@@ -102,7 +100,7 @@ def draw_label(root, x1, x2, y, font_size, options):
         label.split("\n")
     ):  # labels may contain newline character
         # Draw Boxes
-        text_width = get_text_width(lab, font_size)
+        text_width = get_text_width(lab, font, font_size)
         if x1 == x2:
             x = x1 + 3 * MARGIN_LEFT_RIGHT
         else:
@@ -133,7 +131,7 @@ def draw_label(root, x1, x2, y, font_size, options):
                 "x": str(x),
                 "y": str(y),
                 "font-size": str(font_size),
-                "font-family": "Helvetica",
+                "font-family": font,
                 "fill": options.get("textcolour")
                 or options.get("textcolor")
                 or "black",
@@ -143,7 +141,7 @@ def draw_label(root, x1, x2, y, font_size, options):
         text.text = lab
     root.append(g)
     # add the scaled descender to get the lowest vertical coordinate of the label
-    y += get_text_descender(font_size)
+    y += get_text_descender(font, font_size)
     # add the margin
     y += MARGIN_DOWN
     return y
