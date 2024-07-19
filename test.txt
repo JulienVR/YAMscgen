@@ -1,14 +1,20 @@
 msc {
- arcgradient = "10";
+    hscale = "2", arcgradient = "20", max-height="500", font-family="helvetica";
 
- a [label="Client"],b [label="Server"];
+    a,b,c;
 
- a=>b [label="data1", textbgcolor = "grey"];
- a-xb [label="data2"];
- a=>b [label="data3"];
- a<=b [label="ack1, nack2"];
- a=>b [label="data2", arcskip="1", textbgcolor = "turquoise"];
- |||;
- a<=b [label="ack3"];
- |||;
+    a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "turquoise"];
+    a -> b [ label = "this should be on line X", textbgcolor = "turquoise"],
+    b-> c [ label = "this should be on line X as well", textbgcolor = "turquoise"];
+    c =>c [ label = "process(1)", textbgcolor = "turquoise", font-family="monospace"];
+    c=>c [ label = "process(2)" ];
+    ...;
+    c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "turquoise" ];
+    c=>c [ label = "process(END)" ];
+    a<<=c [ label = "callback()"];
+    ---  [ label = "If more to run", ID="*" ];
+    a->a [ label = "next()"];
+    b<-c [ label = "cb(TRUE)"];
+    b->b [ label = "stalled(...)"];
+    a<-b [ label = "ab() = FALSE"];
 }

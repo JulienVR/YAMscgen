@@ -1,7 +1,11 @@
-import xml.etree.ElementTree as ET
+from collections import defaultdict
+import logging
 import random
+import re
+import xml.etree.ElementTree as ET
 
-# TODO generify usage of font
+logger = logging.getLogger(__name__)
+
 HELVETICA = {
     'ascender': 718,
     'descender': -207,
@@ -21,6 +25,39 @@ HELVETICA = {
         227: 370, 232: 556, 233: 778, 234: 1000, 235: 365, 241: 889, 245: 278, 248: 222, 249: 611, 250: 944, 251: 611,
     }
 }
+
+COURIER = {
+    'ascender': 629,
+    'descender': -157,
+    'unicode_to_width': defaultdict(lambda: 600),  # this font is monospaced: each char has the same width
+}
+
+
+def parse_afm_files(font_files):
+    """ Returns a dict mapping the font_name to the ascender, descender and width of each Unicode code point """
+    fonts = {'helvetica': HELVETICA, 'courier': COURIER}
+    if not font_files or not any(font_files):
+        font_files = []
+    for font_file in font_files:
+        with open(font_file) as f:
+            content = f.read()
+        font_name = re.findall(r"FontName (.*)\n", content)[0]
+        ascender = re.findall(r"Ascender (\d*)", content)[0]
+        descender = re.findall(r"Descender (-?\d*)", content)[0]
+        unicode_to_width = {float(k): float(v) for k, v in re.findall(r"C (\d*) ; WX (\d*) ", content)}
+
+        fonts[font_name.lower()] = {
+            'ascender': float(ascender),
+            'descender': float(descender),
+            'unicode_to_width': unicode_to_width,
+        }
+
+    parsed_fonts = set(fonts.keys())
+    parsed_fonts.remove('helvetica')
+    parsed_fonts.remove('courier')
+    if parsed_fonts:
+        logger.info(f"Successfully parsed the following Adobe Font Metrics files: {', '.join(parsed_fonts)}")
+    return fonts
 
 
 def random_color():
@@ -56,28 +93,38 @@ def get_offset_from_label_multiple_lines(label, font_size):
     return offset
 
 
-def get_text_width(text, font, font_size):
+def get_text_width(text, afm, font_size):
     """Returns the text length in pixels."""
-    return (
-        sum(HELVETICA["unicode_to_width"].get(ord(c), 0) for c in text)
-        * font_size
-        / 1000
-    )
+    return sum(afm["unicode_to_width"][ord(c)] for c in text) * font_size / 1000
 
 
-def get_text_ascender(font, font_size):
-    return HELVETICA["ascender"] * font_size / 1000
+def get_text_ascender(afm, font_size):
+    try:
+        afm['ascender']
+    except KeyError:
+        pass
+    return afm["ascender"] * font_size / 1000
 
 
-def get_text_descender(font, font_size):
-    return abs(HELVETICA["descender"]) * font_size / 1000
+def get_text_descender(afm, font_size):
+    return abs(afm["descender"]) * font_size / 1000
 
 
-def get_text_height(font, font_size):
-    return get_text_ascender(font, font_size) + get_text_descender(font, font_size)
+def get_text_height(afm, font_size):
+    return get_text_ascender(afm, font_size) + get_text_descender(afm, font_size)
 
 
-def draw_label(root, x1, x2, y, font, font_size, options):
+def get_afm(font_afm, font):
+    """ from all the AFM available, try to retrieve the one matching the font """
+    try:
+        afm = font_afm[font.lower()]
+    except KeyError:
+        logger.warning(f"No Adobe Font Metrics file retrieved for font '{font}'")
+        afm = font_afm['helvetica']
+    return afm
+
+
+def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     """
     Draw the label right below the y coordinate, and in the middle of the x1, x2 coordinates.
     If there are multiple lines, expand the label downwards.
@@ -86,10 +133,11 @@ def draw_label(root, x1, x2, y, font, font_size, options):
     label = options.get("label")
     if not label:
         return y
+    afm = get_afm(font_afm, font)
     MARGIN_DOWN = font_size
     MARGIN_LEFT_RIGHT = 2
-    scaled_ascender = get_text_ascender(font, font_size)
-    text_height = get_text_height(font, font_size)
+    scaled_ascender = get_text_ascender(afm, font_size)
+    text_height = get_text_height(afm, font_size)
     g = ET.Element("g")
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
@@ -100,7 +148,7 @@ def draw_label(root, x1, x2, y, font, font_size, options):
         label.split("\n")
     ):  # labels may contain newline character
         # Draw Boxes
-        text_width = get_text_width(lab, font, font_size)
+        text_width = get_text_width(lab, afm, font_size)
         if x1 == x2:
             x = x1 + 3 * MARGIN_LEFT_RIGHT
         else:
@@ -141,7 +189,7 @@ def draw_label(root, x1, x2, y, font, font_size, options):
         text.text = lab
     root.append(g)
     # add the scaled descender to get the lowest vertical coordinate of the label
-    y += get_text_descender(font, font_size)
+    y += get_text_descender(afm, font_size)
     # add the margin
     y += MARGIN_DOWN
     return y

@@ -4,7 +4,7 @@ from . import utils
 
 
 class Builder:
-    def __init__(self, parser):
+    def __init__(self, parser, font_files=None):
         self.parser = parser
         self.participants_coordinates = {}
         self.vertical_step = (
@@ -14,6 +14,8 @@ class Builder:
         self.stylesheets = []
         self.current_height = 0
         self.font_size = self.parser.context["font-size"]
+        self.font = self.parser.context['font-family']
+        self.font_afm = utils.parse_afm_files(font_files)
 
     def draw_participants(self, root, height):
         """Draw participants (on top of the image)"""
@@ -27,9 +29,8 @@ class Builder:
             if not entity["options"].get("label"):
                 entity["options"]["label"] = entity["name"]
             font_size = float(entity["options"].get("font-size", self.font_size))
-            font = self.parser.context['font-family']
             y2 = utils.draw_label(
-                root, x - 1, x + 1, height, font, font_size, entity["options"]
+                root, x - 1, x + 1, height, self.font, font_size, self.font_afm, entity["options"]
             )
             y2_list.append(y2)
             x += 2 * relative_position

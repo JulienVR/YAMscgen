@@ -4,8 +4,8 @@ from src.builder import Builder
 from src.parser import Parser
 
 
-def generate_img(input_txt):
-    builder = Builder(Parser(input_txt))
+def generate_img(input_txt, **kwargs):
+    builder = Builder(Parser(input_txt), **kwargs)
     image = builder.generate()
     with open("/home/odoo/Downloads/out.svg", "wb+") as f:
         f.write(image)
@@ -213,6 +213,7 @@ class Test(unittest.TestCase):
             # another comment
             arcgradient = "30";
             font-size="16";
+            font-family="Helvetica";
             a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"],
             b [label = "BBB", font-size="20", textbgcolour = "turquoise"], c, d;
             b->* [label = "broadcast with custom key"];
@@ -252,6 +253,7 @@ class Test(unittest.TestCase):
         generate_img(
             """msc {
             arcgradient = "30";
+            font-family="Helvetica";
             a, b;
             a->b [label="arc"];
             --- [label="general comment\nwhich is on several lines\nand another one", textbgcolor="turquoise"];

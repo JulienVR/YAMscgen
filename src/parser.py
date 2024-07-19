@@ -36,7 +36,7 @@ class Parser:
             "arcgradient": 0,
             "max-height": 0,
             "font-size": 12,
-            "font-family": "Helvetica",
+            "font-family": "helvetica",
         }
         self.participants = []
         self.elements = []

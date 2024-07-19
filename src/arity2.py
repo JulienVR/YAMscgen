@@ -186,7 +186,6 @@ class Arc(Arity2):
             )
 
     def draw(self, builder, root: ET.Element):
-        font = builder.parser.context['font-family']
         if self.element == "->*":
             # broadcast: equivalent to simple arcs to every other participant
             participants = list(builder.participants_coordinates.keys())
@@ -202,7 +201,7 @@ class Arc(Arity2):
             x1 = min(builder.participants_coordinates.values())
             x2 = max(builder.participants_coordinates.values())
             y = builder.current_height + builder.font_size * 2.3
-            utils.draw_label(root, x1, x2, y, font, builder.font_size, self.options)
+            utils.draw_label(root, x1, x2, y, builder.font, builder.font_size, builder.font_afm, self.options)
             return max(y2_list), extra_options
 
         # Arc color
@@ -238,11 +237,12 @@ class Arc(Arity2):
         # multiline labels are put above the arc
         label_lines = len(self.options.get("label", "").split("\n"))
         if label_lines > 1 and x1 != x2:
-            text_height = utils.get_text_height(font, builder.font_size)
+            afm = utils.get_afm(builder.font_afm, builder.font)
+            text_height = utils.get_text_height(afm, builder.font_size)
             label_height = text_height * (label_lines - 1)
             y -= label_height
         if not self.options.get("ignore_label"):
-            utils.draw_label(root, x1, x2, y, font, builder.font_size, self.options)
+            utils.draw_label(root, x1, x2, y, builder.font, builder.font_size, builder.font_afm, self.options)
         return y2, {}
 
 
@@ -292,9 +292,8 @@ class Box(Arity2):
                 },
             )
         # draw label
-        font = builder.parser.context['font-family']
         y2 = utils.draw_label(
-            root, x1, x2, y1 + builder.font_size, font, builder.font_size, self.options
+            root, x1, x2, y1 + builder.font_size, builder.font, builder.font_size, builder.font_afm, self.options
         )
         # update the rectangle based on the lower vertical coordinate
         if self.element in ("box", "rbox"):
