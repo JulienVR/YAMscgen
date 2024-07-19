@@ -50,6 +50,8 @@ if args.type == 'png' and not cairosvg_installed:
 if not args.input:
     # read from stdin (until EOF: CTRL + D)
     text_input = "".join(line for line in sys.stdin)
+    # the literals '\n' are escaped ('\\n') when read from stdin, unescape them ('\n')
+    text_input = text_input.encode('raw_unicode_escape').decode('unicode_escape')
 else:
     # read from a file
     with open(args.input) as f:
