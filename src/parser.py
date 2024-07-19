@@ -36,7 +36,7 @@ class Parser:
             "arcgradient": 0,
             "max-height": 0,
             "font-size": 12,
-            "font-family": "helvetica",
+            "font": "helvetica",
         }
         self.participants = []
         self.elements = []
@@ -80,7 +80,7 @@ class Parser:
         for arg in self.context:
             val = re.findall(f'{arg} ?= ?"(.*?)"', line)
             if val:
-                if arg == 'font-family':
+                if arg == 'font':
                     self.context[arg] = val[0]
                 else:
                     self.context[arg] = float(val[0])

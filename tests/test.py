@@ -213,7 +213,7 @@ class Test(unittest.TestCase):
             # another comment
             arcgradient = "30";
             font-size="16";
-            font-family="Helvetica";
+            font="Helvetica";
             a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"],
             b [label = "BBB", font-size="20", textbgcolour = "turquoise"], c, d;
             b->* [label = "broadcast with custom key"];
@@ -253,7 +253,7 @@ class Test(unittest.TestCase):
         generate_img(
             """msc {
             arcgradient = "30";
-            font-family="Helvetica";
+            font="Courier";
             a, b;
             a->b [label="arc"];
             --- [label="general comment\nwhich is on several lines\nand another one", textbgcolor="turquoise"];

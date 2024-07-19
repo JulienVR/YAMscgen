@@ -14,7 +14,7 @@ class Builder:
         self.stylesheets = []
         self.current_height = 0
         self.font_size = self.parser.context["font-size"]
-        self.font = self.parser.context['font-family']
+        self.font = self.parser.context['font']
         self.font_afm = utils.parse_afm_files(font_files)
 
     def draw_participants(self, root, height):
