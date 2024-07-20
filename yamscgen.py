@@ -40,14 +40,6 @@ parser.add_argument(
     type=Path,
 )
 parser.add_argument("-t", "--type", choices=["svg", "png", "pdf"], default="svg")
-parser.add_argument(
-    "-f",
-    "--fonts-directory",
-    help="Paths to the directory containing the Adobe Font Metrics files. Available for example, at: "
-         "https://github.com/matplotlib/matplotlib/tree/main/lib/matplotlib/mpl-data/fonts/afm",
-    required=False,
-)
-
 args = parser.parse_args()
 
 if args.type in ('pdf', 'png') and not cairosvg_installed:
@@ -61,10 +53,7 @@ else:
     with open(args.input) as f:
         text_input = f.read()
 
-# the literals '\n' are escaped ('\\n') when read from stdin, unescape them ('\n')
-text_input = text_input.encode('raw_unicode_escape').decode('unicode_escape')
-
-svg = Builder(parser=Parser(text_input), fonts_directory=args.fonts_directory).generate()
+svg = Builder(parser=Parser(text_input)).generate()
 
 if args.type == 'png':
     cairosvg.svg2png(svg, write_to=str(args.output))

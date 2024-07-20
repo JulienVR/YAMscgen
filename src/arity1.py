@@ -13,10 +13,7 @@ class Arity1:
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
         # Expand lifelines: margin
-        offset = utils.get_offset_from_label_multiple_lines(
-            self.options.get("label", ""), builder.font_size
-        )
-        y2 = builder.current_height + offset + builder.margin
+        y2 = builder.current_height + builder.margin + builder.font_size
         utils.expand_lifelines(
             builder, root, y1=builder.current_height, y2=y2, extra_options=self.options
         )
@@ -27,14 +24,17 @@ class Arity1:
         # Label
         x1 = min(builder.participants_coordinates.values())
         x2 = max(builder.participants_coordinates.values())
-        y = y1 + (y2 - y1) / 2 - offset / 2
         g = ET.SubElement(root, "g")
         font = self.options.get('font-family', builder.font)
-        y2 = utils.draw_label(
-            root, x1, x2, y - builder.font_size * 2, font, builder.font_size, builder.font_afm, self.options
+        if self._name in ("OmittedSignal", "ExtraSpace"):
+            y_label = (y1 + y2)/2 + builder.font_size/2
+        else:
+            y_label = (y1 + y2)/2 - builder.font_size
+        y2_label = utils.draw_label(
+            root, x1, x2, y_label, font, builder.font_size, builder.font_afm, self.options
         )
         if self._name == "GeneralComment":
-            y = y1 + (y2 - y1) / 2
+            y = (y1 + y2)/2
             color = (
                 self.options.get("linecolour")
                 or self.options.get("linecolor")
@@ -53,7 +53,7 @@ class Arity1:
                     "stroke-dasharray": "5, 3",
                 },
             )
-        return y2, extra_options
+        return max(y2, y2_label), extra_options
 
 
 class ExtraSpace(Arity1):

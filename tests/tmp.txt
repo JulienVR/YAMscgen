@@ -1,0 +1,24 @@
+msc {
+    hscale = "2", arcgradient = "20", max-height="500", font="courier", font-size="20";
+
+    a,b,c;
+
+    # This is a comment;
+    # a -> b [label="another comment"];
+    # a -> b [label = "another comment containing \n tmp \n"];
+    # another comment ending with end of line
+    a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold", font-weight="bold"];
+    a -> b [ label = "this should be on line X", textbgcolor = "yellow"],
+    b-> c [ label = "this should be on line X as well", textbgcolor = "yellow", font-family="times-italic", font-style="italic"];
+    c =>c [ label = "process(1)", textbgcolor = "yellow"];
+    c=>c [ label = "process(2)", textbgcolor="yellow" ];
+    ...;
+    c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "yellow" ];
+    c=>c [ label = "process(END)", textbgcolor="yellow"];
+    a<<=c [ label = "callback()", textbgcolor="yellow"];
+    ---  [ label = "If more to run", font-family="courier", textbgcolor="yellow"];
+    a->a [ label = "next()", textbgcolor="yellow"];
+    b<-c [ label = "cb(TRUE)", textbgcolor="yellow"];
+    b->b [ label = "stalled(...)", textbgcolor="yellow"];
+    a<-b [ label = "ab() = FALSE", textbgcolor="yellow"];
+}

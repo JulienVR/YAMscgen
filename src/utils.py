@@ -7,43 +7,14 @@ import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
-HELVETICA = {
-    'ascender': 718,
-    'descender': -207,
-    'unicode_to_width': {
-        32: 278, 33: 278, 34: 355, 35: 556, 36: 556, 37: 889, 38: 667, 39: 222, 40: 333, 41: 333, 42: 389, 43: 584,
-        44: 278, 45: 333, 46: 278, 47: 278, 48: 556, 49: 556, 50: 556, 51: 556, 52: 556, 53: 556, 54: 556, 55: 556,
-        56: 556, 57: 556, 58: 278, 59: 278, 60: 584, 61: 584, 62: 584, 63: 556, 64: 1015, 65: 667, 66: 667, 67: 722,
-        68: 722, 69: 667, 70: 611, 71: 778, 72: 722, 73: 278, 74: 500, 75: 667, 76: 556, 77: 833, 78: 722, 79: 778,
-        80: 667, 81: 778, 82: 722, 83: 667, 84: 611, 85: 722, 86: 667, 87: 944, 88: 667, 89: 667, 90: 611, 91: 278,
-        92: 278, 93: 278, 94: 469, 95: 556, 96: 222, 97: 556, 98: 556, 99: 500, 100: 556, 101: 556, 102: 278, 103: 556,
-        104: 556, 105: 222, 106: 222, 107: 500, 108: 222, 109: 833, 110: 556, 111: 556, 112: 556, 113: 556, 114: 333,
-        115: 500, 116: 278, 117: 556, 118: 500, 119: 722, 120: 500, 121: 500, 122: 500, 123: 334, 124: 260, 125: 334,
-        126: 584, 161: 333, 162: 556, 163: 556, 164: 167, 165: 556, 166: 556, 167: 556, 168: 556, 169: 191, 170: 333,
-        171: 556, 172: 333, 173: 333, 174: 500, 175: 500, 177: 556, 178: 556, 179: 556, 180: 278, 182: 537, 183: 350,
-        184: 222, 185: 333, 186: 333, 187: 556, 188: 1000, 189: 1000, 191: 611, 193: 333, 194: 333, 195: 333, 196: 333,
-        197: 333, 198: 333, 199: 333, 200: 333, 202: 333, 203: 333, 205: 333, 206: 333, 207: 333, 208: 1000, 225: 1000,
-        227: 370, 232: 556, 233: 778, 234: 1000, 235: 365, 241: 889, 245: 278, 248: 222, 249: 611, 250: 944, 251: 611,
-    }
-}
 
-COURIER = {
-    'ascender': 629,
-    'descender': -157,
-    'unicode_to_width': defaultdict(lambda: 600),  # this font is monospaced: each char has the same width
-}
-
-
-def parse_afm_files(fonts_directory):
+def parse_afm_files():
     """ Returns a dict mapping the font_name to the ascender, descender and width of each Unicode code point """
-    fonts = {'helvetica': HELVETICA, 'courier': COURIER}
-    if not fonts_directory:
-        return fonts
-
+    fonts = {}
+    fonts_directory = os.path.dirname(__file__) + "/../pdfcorefonts"
     for filename in os.listdir(fonts_directory):
         path = os.path.join(fonts_directory, filename)
-        if not os.path.isfile(path):
-            logger.warning(f"{path} is not a file, skipping.")
+        if not os.path.isfile(path) or not filename.endswith('.afm'):
             continue
         with open(path, 'r') as f:
             content = f.read()
@@ -51,14 +22,6 @@ def parse_afm_files(fonts_directory):
         ascender_match = re.findall(r"Ascender (\d*)", content)
         descender_match = re.findall(r"Descender (-?\d*)", content)
         if not (font_name_match and ascender_match and descender_match):
-            missing_fields = []
-            if not font_name_match:
-                missing_fields.append("'FontName'")
-            if not ascender_match:
-                missing_fields.append("'Ascender'")
-            if not descender_match:
-                missing_fields.append("'Descender'")
-            logger.warning(f"Could not parse the file: {filename} - no {', '.join(missing_fields)} values found")
             continue
         unicode_to_width = {float(k): float(v) for k, v in re.findall(r"C (\d*) ; WX (\d*) ", content)}
         fonts[font_name_match[0].lower()] = {
@@ -66,12 +29,6 @@ def parse_afm_files(fonts_directory):
             'descender': float(descender_match[0]),
             'unicode_to_width': unicode_to_width,
         }
-
-    parsed_fonts = set(fonts.keys())
-    parsed_fonts.remove('helvetica')
-    parsed_fonts.remove('courier')
-    if parsed_fonts:
-        logger.info(f"Successfully parsed the following Adobe Font Metrics files: {', '.join(parsed_fonts)}")
     return fonts
 
 
@@ -102,7 +59,7 @@ def expand_lifelines(builder, root: ET.Element, y1, y2, extra_options: dict):
 def get_offset_from_label_multiple_lines(label, font_size):
     """A label may have multiple lines, hence needing the arcs to be shifted downwards."""
     offset = 0
-    label_lines_count = len(label.split("\n"))
+    label_lines_count = len(label.split(r"\n"))
     if label_lines_count:
         offset = label_lines_count * font_size
     return offset
@@ -134,7 +91,7 @@ def get_afm(font_afm, font):
     try:
         afm = font_afm[font.lower()]
     except KeyError:
-        logger.warning(f"No Adobe Font Metrics file retrieved for font '{font}', impossible to measure the width of the labels using this font")
+        logger.warning(f"No Adobe Font Metrics file available for font '{font}', impossible to measure the width of the labels using this font")
         afm = font_afm['helvetica']
     return afm
 
@@ -158,9 +115,9 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     y += scaled_ascender
     # shift label upward if multiline
     if x1 == x2:
-        y -= text_height * len(label.split("\n"))
+        y -= text_height * len(label.split(r"\n"))
     for idx, lab in enumerate(
-        label.split("\n")
+        label.split(r"\n")
     ):  # labels may contain newline character
         # Draw Boxes
         text_width = get_text_width(lab, afm, font_size)
@@ -186,6 +143,10 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
         max_x = float(rect.attrib["x"]) + float(rect.attrib["width"])
         if max_x > float(root.attrib["width"]):
             root.attrib["width"] = str(max_x)
+        # Custom font passed in the element
+        if 'font-family' in options:
+            # e.g. 'helvetica-bold' -> should use the 'helvetica-bold' AFM, but set the font-family of text element to 'helvetica'
+            font = options['font-family'].split('-')[0]
         # Draw text inside the box
         text = ET.SubElement(
             g,
@@ -194,11 +155,9 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
                 "x": str(x),
                 "y": str(y),
                 "font-size": str(font_size),
-                "font-family": font,
-                "fill": options.get("textcolour")
-                or options.get("textcolor")
-                or "black",
+                "fill": options.get("textcolour") or options.get("textcolor") or "black",
                 **options,
+                "font-family": font,
             },
         )
         text.text = lab

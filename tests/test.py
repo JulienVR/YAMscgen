@@ -4,8 +4,8 @@ from src.builder import Builder
 from src.parser import Parser
 
 
-def generate_img(input_txt, **kwargs):
-    builder = Builder(Parser(input_txt), **kwargs)
+def generate_img(input_txt):
+    builder = Builder(Parser(input_txt))
     image = builder.generate()
     with open("/home/odoo/Downloads/out.svg", "wb+") as f:
         f.write(image)
@@ -15,14 +15,17 @@ class Test(unittest.TestCase):
 
     def test1(self):
         generate_img(
-            """msc {
-            hscale = "2", arcgradient = "20", max-height="500";
+            r"""msc {
+            hscale = "2", arcgradient = "20", max-height="500", font="courier", font-size="20";
                     
             a,b,c;
             
-            a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "yellow", font-family="courier", font-weight="bold"];
+            # This is a comment;
+            # a -> b [label="another comment"];
+            # a -> b [label = "another comment containing \n tmp \n"];
+            a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold", font-weight="bold"];
             a -> b [ label = "this should be on line X", textbgcolor = "yellow"],
-            b-> c [ label = "this should be on line X as well", textbgcolor = "yellow"];
+            b-> c [ label = "this should be on line X as well", textbgcolor = "yellow", font-family="times-italic", font-style="italic"];
             c =>c [ label = "process(1)", textbgcolor = "yellow"];
             c=>c [ label = "process(2)", textbgcolor="yellow" ];
             ...;
@@ -39,7 +42,7 @@ class Test(unittest.TestCase):
 
     def test2_low_arcgradient(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient="10";
             a [label="Client"],b [label="Server"];
             
@@ -56,7 +59,7 @@ class Test(unittest.TestCase):
 
     def test2_avg_arcgradient(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient="30";
             a [label="Client"],b [label="Server"];
             
@@ -73,7 +76,7 @@ class Test(unittest.TestCase):
 
     def test_drawing_boxes(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "20";
             font-size = "15";
             # The entities
@@ -96,7 +99,7 @@ class Test(unittest.TestCase):
 
     def test_drawing_boxes_hscale(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "10";
             hscale = "2";
             # The entities
@@ -119,7 +122,7 @@ class Test(unittest.TestCase):
 
     def test_arc_to_self(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "10";
             # The entities
             A, B;
@@ -142,7 +145,7 @@ class Test(unittest.TestCase):
 
     def test_arc_to_self_avg_arcgradient(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "30";
             # The entities
             A, B;
@@ -165,7 +168,7 @@ class Test(unittest.TestCase):
 
     def test_arc_to_self_high_arcgradient(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "50";
             # The entities
             A, B;
@@ -188,7 +191,7 @@ class Test(unittest.TestCase):
 
     def test_newline_char(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "10";
             a, b;
             a->b [label="this is a line\nand a new line"];
@@ -197,7 +200,7 @@ class Test(unittest.TestCase):
 
     def test_broadcast_arc(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "30";
             a, b, c;
             a->* [label = "broadcast"];
@@ -208,7 +211,7 @@ class Test(unittest.TestCase):
 
     def test_broadcast_arc_bis(self):
         generate_img(
-            """msc {
+            r"""msc {
             # This is a comment
             # another comment
             arcgradient = "30";
@@ -237,13 +240,34 @@ class Test(unittest.TestCase):
         lines = Parser.split_elements_on_line(line)
         self.assertEqual(lines, ["...", "---"])
 
+    def test_omitted_signal(self):
+        generate_img(
+            r"""msc {
+            font-size="20", font="courier";
+            a, b, c, d;
+            a->b;
+            ... [label="Omitted Signal\nbut with several\nlines", textbgcolour="yellow"];
+            a->b;
+            ... [label="Omitted Signal", textbgcolour="yellow"];
+            a->b;
+            --- [label="General Comment"];
+            a->b;
+            ||| [label = "extra space"];
+            a -> b;
+            # Example of the boxes with filled backgrounds
+            a abox b [label="abox", textbgcolour="#ff7f7f"];
+            b rbox c [label="rbox", textbgcolour="#7fff7f"];
+            c note d [label="note", textbgcolour="#7f7fff"];
+            }"""
+        )
+
     def test_parse_options(self):
-        line = 'a->b [label="test label,\non several; lines", arcskip="1", fill="red"]'
+        line = r'a->b [label="test label,\non several; lines", arcskip="1", fill="red"]'
         options = Parser.parse_options(line)
         self.assertEqual(
             options,
             {
-                "label": "test label,\non several; lines",
+                "label": r"test label,\non several; lines",
                 "arcskip": "1",
                 "fill": "red",
             },
@@ -251,7 +275,7 @@ class Test(unittest.TestCase):
 
     def test_arity1_elements(self):
         generate_img(
-            """msc {
+            r"""msc {
             arcgradient = "30";
             font="Courier";
             a, b;
