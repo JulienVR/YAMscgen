@@ -1,5 +1,6 @@
 from collections import defaultdict
 import logging
+import os
 import random
 import re
 import xml.etree.ElementTree as ET
@@ -33,22 +34,36 @@ COURIER = {
 }
 
 
-def parse_afm_files(font_files):
+def parse_afm_files(fonts_directory):
     """ Returns a dict mapping the font_name to the ascender, descender and width of each Unicode code point """
     fonts = {'helvetica': HELVETICA, 'courier': COURIER}
-    if not font_files or not any(font_files):
-        font_files = []
-    for font_file in font_files:
-        with open(font_file) as f:
-            content = f.read()
-        font_name = re.findall(r"FontName (.*)\n", content)[0]
-        ascender = re.findall(r"Ascender (\d*)", content)[0]
-        descender = re.findall(r"Descender (-?\d*)", content)[0]
-        unicode_to_width = {float(k): float(v) for k, v in re.findall(r"C (\d*) ; WX (\d*) ", content)}
+    if not fonts_directory:
+        return fonts
 
-        fonts[font_name.lower()] = {
-            'ascender': float(ascender),
-            'descender': float(descender),
+    for filename in os.listdir(fonts_directory):
+        path = os.path.join(fonts_directory, filename)
+        if not os.path.isfile(path):
+            logger.warning(f"{path} is not a file, skipping.")
+            continue
+        with open(path, 'r') as f:
+            content = f.read()
+        font_name_match = re.findall(r"FontName (.*)\n", content)
+        ascender_match = re.findall(r"Ascender (\d*)", content)
+        descender_match = re.findall(r"Descender (-?\d*)", content)
+        if not (font_name_match and ascender_match and descender_match):
+            missing_fields = []
+            if not font_name_match:
+                missing_fields.append("'FontName'")
+            if not ascender_match:
+                missing_fields.append("'Ascender'")
+            if not descender_match:
+                missing_fields.append("'Descender'")
+            logger.warning(f"Could not parse the file: {filename} - no {', '.join(missing_fields)} values found")
+            continue
+        unicode_to_width = {float(k): float(v) for k, v in re.findall(r"C (\d*) ; WX (\d*) ", content)}
+        fonts[font_name_match[0].lower()] = {
+            'ascender': float(ascender_match[0]),
+            'descender': float(descender_match[0]),
             'unicode_to_width': unicode_to_width,
         }
 
@@ -115,11 +130,11 @@ def get_text_height(afm, font_size):
 
 
 def get_afm(font_afm, font):
-    """ from all the AFM available, try to retrieve the one matching the font """
+    """ from all the AFM available, retrieve the one matching the font """
     try:
         afm = font_afm[font.lower()]
     except KeyError:
-        logger.warning(f"No Adobe Font Metrics file retrieved for font '{font}'")
+        logger.warning(f"No Adobe Font Metrics file retrieved for font '{font}', impossible to measure the width of the labels using this font")
         afm = font_afm['helvetica']
     return afm
 

@@ -1,3 +1,4 @@
+from . import colored_formatter
 from . import parser
 from . import builder
 from . import arity1

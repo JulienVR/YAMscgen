@@ -11,6 +11,13 @@ import logging
 
 from src.builder import Builder
 from src.parser import Parser
+from src.colored_formatter import ColoredFormatter
+
+handler = logging.StreamHandler()
+handler.setFormatter(ColoredFormatter())
+logging.getLogger().addHandler(handler)
+logging.getLogger().setLevel(logging.INFO)
+
 
 parser = argparse.ArgumentParser(
     prog="Diagrams",
@@ -35,34 +42,34 @@ parser.add_argument(
 parser.add_argument("-t", "--type", choices=["svg", "png", "pdf"], default="svg")
 parser.add_argument(
     "-f",
-    "--font-files",
-    help="Paths to the Adobe Font Metrics files (comma separated). Available for example, at: "
+    "--fonts-directory",
+    help="Paths to the directory containing the Adobe Font Metrics files. Available for example, at: "
          "https://github.com/matplotlib/matplotlib/tree/main/lib/matplotlib/mpl-data/fonts/afm",
     required=False,
 )
 
 args = parser.parse_args()
 
-logging.basicConfig(level=logging.INFO)
-if args.type == 'png' and not cairosvg_installed:
+if args.type in ('pdf', 'png') and not cairosvg_installed:
     sys.exit("Unable to generate a PNG/PDF because cairosvg is not installed.")
 
 if not args.input:
     # read from stdin (until EOF: CTRL + D)
     text_input = "".join(line for line in sys.stdin)
-    # the literals '\n' are escaped ('\\n') when read from stdin, unescape them ('\n')
-    text_input = text_input.encode('raw_unicode_escape').decode('unicode_escape')
 else:
     # read from a file
     with open(args.input) as f:
         text_input = f.read()
 
-svg = Builder(parser=Parser(text_input), font_files=[args.font_files]).generate()
+# the literals '\n' are escaped ('\\n') when read from stdin, unescape them ('\n')
+text_input = text_input.encode('raw_unicode_escape').decode('unicode_escape')
+
+svg = Builder(parser=Parser(text_input), fonts_directory=args.fonts_directory).generate()
 
 if args.type == 'png':
-    cairosvg.svg2png(svg, write_to=args.output)
+    cairosvg.svg2png(svg, write_to=str(args.output))
 elif args.type == 'pdf':
-    cairosvg.svg2pdf(svg, write_to=args.output)
+    cairosvg.svg2pdf(svg, write_to=str(args.output))
 else:
     with open(args.output, "wb+") as f:
         f.write(svg)

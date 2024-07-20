@@ -29,8 +29,9 @@ class Arity1:
         x2 = max(builder.participants_coordinates.values())
         y = y1 + (y2 - y1) / 2 - offset / 2
         g = ET.SubElement(root, "g")
+        font = self.options.get('font-family', builder.font)
         y2 = utils.draw_label(
-            root, x1, x2, y - builder.font_size * 2, builder.font, builder.font_size, builder.font_afm, self.options
+            root, x1, x2, y - builder.font_size * 2, font, builder.font_size, builder.font_afm, self.options
         )
         if self._name == "GeneralComment":
             y = y1 + (y2 - y1) / 2

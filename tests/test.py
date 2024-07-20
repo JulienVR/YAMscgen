@@ -20,20 +20,20 @@ class Test(unittest.TestCase):
                     
             a,b,c;
             
-            a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "turquoise"];
-            a -> b [ label = "this should be on line X", textbgcolor = "turquoise"],
-            b-> c [ label = "this should be on line X as well", textbgcolor = "turquoise"];
-            c =>c [ label = "process(1)", textbgcolor = "turquoise", font-family="monospace"];
-            c=>c [ label = "process(2)" ];
+            a->c [ label = "ac1()\nac2()\nanother new long line\nand yet another one", textbgcolor = "yellow", font-family="courier", font-weight="bold"];
+            a -> b [ label = "this should be on line X", textbgcolor = "yellow"],
+            b-> c [ label = "this should be on line X as well", textbgcolor = "yellow"];
+            c =>c [ label = "process(1)", textbgcolor = "yellow"];
+            c=>c [ label = "process(2)", textbgcolor="yellow" ];
             ...;
-            c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "turquoise" ];
-            c=>c [ label = "process(END)" ];
-            a<<=c [ label = "callback()"];
-            ---  [ label = "If more to run", ID="*" ];
-            a->a [ label = "next()"];
-            b<-c [ label = "cb(TRUE)"];
-            b->b [ label = "stalled(...)"];
-            a<-b [ label = "ab() = FALSE"];
+            c=>c [ label = "ac1()\nac2()\nanother new long line", linecolor="blue", textbgcolor = "yellow" ];
+            c=>c [ label = "process(END)", textbgcolor="yellow"];
+            a<<=c [ label = "callback()", textbgcolor="yellow"];
+            ---  [ label = "If more to run", font-family="courier", textbgcolor="yellow"];
+            a->a [ label = "next()", textbgcolor="yellow"];
+            b<-c [ label = "cb(TRUE)", textbgcolor="yellow"];
+            b->b [ label = "stalled(...)", textbgcolor="yellow"];
+            a<-b [ label = "ab() = FALSE", textbgcolor="yellow"];
         }"""
         )
 

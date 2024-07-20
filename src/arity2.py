@@ -234,15 +234,16 @@ class Arc(Arity2):
         else:
             # ... except for the arc to self
             y = y1 - builder.font_size / 2
+        font = self.options.get('font-family', builder.font)
         # multiline labels are put above the arc
         label_lines = len(self.options.get("label", "").split("\n"))
         if label_lines > 1 and x1 != x2:
-            afm = utils.get_afm(builder.font_afm, builder.font)
+            afm = utils.get_afm(builder.font_afm, font)
             text_height = utils.get_text_height(afm, builder.font_size)
             label_height = text_height * (label_lines - 1)
             y -= label_height
         if not self.options.get("ignore_label"):
-            utils.draw_label(root, x1, x2, y, builder.font, builder.font_size, builder.font_afm, self.options)
+            utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options)
         return y2, {}
 
 

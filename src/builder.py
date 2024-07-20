@@ -4,7 +4,7 @@ from . import utils
 
 
 class Builder:
-    def __init__(self, parser, font_files=None):
+    def __init__(self, parser, fonts_directory=None):
         self.parser = parser
         self.participants_coordinates = {}
         self.vertical_step = (
@@ -15,7 +15,7 @@ class Builder:
         self.current_height = 0
         self.font_size = self.parser.context["font-size"]
         self.font = self.parser.context['font']
-        self.font_afm = utils.parse_afm_files(font_files)
+        self.font_afm = utils.parse_afm_files(fonts_directory)
 
     def draw_participants(self, root, height):
         """Draw participants (on top of the image)"""
