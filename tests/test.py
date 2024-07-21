@@ -243,9 +243,10 @@ class Test(unittest.TestCase):
     def test_omitted_signal(self):
         generate_img(
             r"""msc {
-            font-size="20", font="courier";
-            a, b, c, d;
-            a->b;
+            font-size="20", font="courier", max-height="500";
+            # entity D can be customized
+            a, b, c, d [linecolour="red"];
+            d note d [label = "a random\ncomment", bordercolor="green", textbgcolour="yellow"];
             ... [label="Omitted Signal\nbut with several\nlines", textbgcolour="yellow"];
             a->b;
             ... [label="Omitted Signal", textbgcolour="yellow"];

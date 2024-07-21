@@ -35,11 +35,7 @@ class Arity1:
         )
         if self._name == "GeneralComment":
             y = (y1 + y2)/2
-            color = (
-                self.options.get("linecolour")
-                or self.options.get("linecolor")
-                or "black"
-            )
+            color = self.options.get("linecolour") or self.options.get("linecolor") or "black"
             ET.SubElement(
                 g,
                 "line",

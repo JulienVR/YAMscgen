@@ -205,9 +205,7 @@ class Arc(Arity2):
             return max(y2_list), extra_options
 
         # Arc color
-        color = (
-            self.options.get("linecolour") or self.options.get("linecolor") or "black"
-        )
+        color = self.options.get("linecolour") or self.options.get("linecolor") or "black"
         arrow_id = self.get_arrow_tip_id(color)
         # Arc coordinates
         offset = utils.get_offset_from_label_multiple_lines(
@@ -216,9 +214,7 @@ class Arc(Arity2):
         x1 = builder.participants_coordinates[self.src]
         y1 = builder.current_height + builder.margin + offset
         x2 = builder.participants_coordinates[self.dst]
-        y2 = y1 + builder.parser.context["arcgradient"] * (
-            float(self.options.get("arcskip", "0")) + 1
-        )
+        y2 = y1 + builder.parser.context["arcgradient"] * (float(self.options.get("arcskip", "0")) + 1)
         if self.src == self.dst and builder.parser.context["arcgradient"] < 10:
             # avoid having a squashed arc to self
             y2 += 10
@@ -263,21 +259,21 @@ class Box(Arity2):
         y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
 
+        border_color = self.options.get("bordercolour") or self.options.get("bordercolor") or "black"
+        background_color = self.options.get("textbgcolour") or self.options.get("textbgcolor") or "white"
         if self.element in ("box", "rbox"):
             rectangle = ET.SubElement(
                 root,
                 "rect",
                 {
-                    **self.options,
                     "x": str(x1),
                     "y": str(y1),
                     "width": str(x2 - x1),
-                    "stroke": "black",
-                    "fill": self.options.get("textbgcolour")
-                    or self.options.get("textbgcolor")
-                    or "white",
                     "rx": "5" if self.element == "rbox" else "0",
                     "ry": "5" if self.element == "rbox" else "0",
+                    **self.options,
+                    "stroke": border_color,
+                    "fill": background_color,
                 },
             )
         else:
@@ -286,10 +282,8 @@ class Box(Arity2):
                 "path",
                 {
                     **self.options,
-                    "stroke": "black",
-                    "fill": self.options.get("textbgcolour")
-                    or self.options.get("textbgcolor")
-                    or "white",
+                    "stroke": border_color,
+                    "fill": background_color,
                 },
             )
         # draw label

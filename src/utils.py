@@ -1,4 +1,3 @@
-from collections import defaultdict
 import logging
 import os
 import random
@@ -40,18 +39,20 @@ def random_color():
 
 def expand_lifelines(builder, root: ET.Element, y1, y2, extra_options: dict):
     """Increases each participant's lifeline using the vertical_step"""
-    for coord in builder.participants_coordinates.values():
+    for participant in builder.parser.participants:
+        coord = builder.participants_coordinates[participant['name']]
+        options = participant['options']
         ET.SubElement(
             root,
             "line",
             {
-                #'stroke': random_color(),
-                "stroke": "black",
+                "stroke": options.get("linecolor") or options.get("linecolour") or "black",
                 "x1": str(coord),
                 "y1": str(y1),
                 "x2": str(coord),
                 "y2": str(y2),
                 **extra_options,
+                **options,
             },
         )
 
@@ -116,9 +117,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     # shift label upward if multiline
     if x1 == x2:
         y -= text_height * len(label.split(r"\n"))
-    for idx, lab in enumerate(
-        label.split(r"\n")
-    ):  # labels may contain newline character
+    for idx, lab in enumerate(label.split(r"\n")):  # labels may contain newline character
         # Draw Boxes
         text_width = get_text_width(lab, afm, font_size)
         if x1 == x2:
@@ -134,9 +133,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
                 "y": str(y - scaled_ascender),
                 "width": str(text_width + 2 * MARGIN_LEFT_RIGHT),
                 "height": str(text_height),
-                "fill": options.get("textbgcolour")
-                or options.get("textbgcolor")
-                or "white",
+                "fill": options.get("textbgcolour") or options.get("textbgcolor") or "white",
             },
         )
         # Sometimes, the text goes beyond the SVG frame
@@ -155,8 +152,8 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
                 "x": str(x),
                 "y": str(y),
                 "font-size": str(font_size),
-                "fill": options.get("textcolour") or options.get("textcolor") or "black",
                 **options,
+                "fill": options.get("textcolour") or options.get("textcolor") or "black",
                 "font-family": font,
             },
         )
