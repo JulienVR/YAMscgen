@@ -16,7 +16,8 @@ class Test(unittest.TestCase):
     def test1(self):
         generate_img(
             r"""msc {
-            hscale = "2", arcgradient = "20", max-height="500", font="courier", font-size="20";
+            hscale = "2", width="500";
+            arcgradient = "20", max-height="500", font="courier", font-size="15";
                     
             a,b,c;
             

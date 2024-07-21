@@ -13,15 +13,15 @@ class Builder:
         self.margin = self.vertical_step / 2  # margin before drawing any element
         self.stylesheets = []
         self.current_height = 0
+        self.width = self.parser.context["width"] * self.parser.context["hscale"]
         self.font_size = self.parser.context["font-size"]
         self.font = self.parser.context['font']
         self.font_afm = utils.parse_afm_files()
+        self.defs = ET.Element("defs")
 
     def draw_participants(self, root, height):
         """Draw participants (on top of the image)"""
-        relative_position = float(root.attrib["width"]) / (
-            2 * len(self.parser.participants)
-        )
+        relative_position = float(self.width) / (2 * len(self.parser.participants))
         x = relative_position
         y2_list = []
         for entity in self.parser.participants:
@@ -41,9 +41,7 @@ class Builder:
             "svg",
             {
                 "version": "1.1",
-                "width": str(
-                    self.parser.context["width"] * self.parser.context["hscale"]
-                ),
+                "width": str(self.width),
                 "xmlns": "http://www.w3.org/2000/svg",
             },
         )
@@ -54,11 +52,12 @@ class Builder:
         self.current_height = y2
         for line in self.parser.elements:
             g = ET.SubElement(root, "g")
+            g_elements = ET.SubElement(root, "g")
             # draw all the elements on the line
             y2_list = []
             extra_options = {}
             for element in line:
-                y2, options = element.draw(builder=self, root=root)
+                y2, options = element.draw(builder=self, root=g_elements)
                 assert isinstance(
                     y2, float
                 ), "The 'draw' method should return a tuple (float, dict)"
@@ -73,6 +72,10 @@ class Builder:
                 extra_options=extra_options,
             )
             self.current_height = max(y2_list)
+
+        # add the defs to the root
+        for marker in self.defs:
+            root.find('defs').append(marker)
 
         # add a bottom margin
         y2 = self.current_height + self.margin

@@ -40,10 +40,11 @@ class Arc(Arity2):
             form = "standard"
         return f"arrow-{form}-{color}"
 
-    def draw_arrow_tip(self, root, arrow_id, color):
-        if not root.find(f'defs/marker[@id="{arrow_id}"]'):
+    def draw_arrow_tip(self, builder, arrow_id, color):
+        if not builder.defs.find(f'marker[@id="{arrow_id}"]'):
+            # TODO: pass the defs elements
             marker = ET.SubElement(
-                root.find("defs"),
+                builder.defs,
                 "marker",
                 {
                     "id": arrow_id,
@@ -221,7 +222,7 @@ class Arc(Arity2):
 
         # Arrow (see https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/marker-end)
         self.draw_arrow(root, x1, x2, y1, y2, arrow_id, color)
-        self.draw_arrow_tip(root, arrow_id, color)
+        self.draw_arrow_tip(builder, arrow_id, color)
 
         # Label (last element drawn since the rendering order is based on the document order)
         if x1 != x2:
@@ -252,9 +253,7 @@ class Box(Arity2):
         return f"<Box> {self.src} {self.element} {self.dst} {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        space_per_participant = float(root.attrib["width"]) / len(
-            builder.participants_coordinates.keys()
-        )
+        space_per_participant = float(builder.width) / len(builder.participants_coordinates.keys())
         x1 = builder.participants_coordinates[self.src] - space_per_participant * 0.4
         y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
