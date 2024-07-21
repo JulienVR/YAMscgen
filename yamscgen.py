@@ -6,7 +6,6 @@ except ImportError:
 
 import argparse
 import sys
-from pathlib import Path
 import logging
 
 from src.builder import Builder
@@ -30,14 +29,12 @@ parser.add_argument(
     "--input",
     help="The input file to read from. If omitted, reads from the standard input.",
     required=False,
-    type=Path,
 )
 parser.add_argument(
     "-o",
     "--output",
     help="The output file to write to.",
     required=True,
-    type=Path,
 )
 parser.add_argument("-t", "--type", choices=["svg", "png", "pdf"], default="svg")
 args = parser.parse_args()
@@ -53,12 +50,18 @@ else:
     with open(args.input) as f:
         text_input = f.read()
 
-svg = Builder(parser=Parser(text_input)).generate()
+svgs = Builder(parser=Parser(text_input)).generate()
 
-if args.type == 'png':
-    cairosvg.svg2png(svg, write_to=str(args.output))
-elif args.type == 'pdf':
-    cairosvg.svg2pdf(svg, write_to=str(args.output))
-else:
-    with open(args.output, "wb+") as f:
-        f.write(svg)
+for i, svg in enumerate(svgs):
+    if len(svgs) > 1:
+        filename_list = args.output.split('.')
+        filename = ''.join(filename_list[:-1]) + f"-{i+1}." + filename_list[-1]
+    else:
+        filename = args.output
+    if args.type == 'png':
+        cairosvg.svg2png(svg, write_to=filename)
+    elif args.type == 'pdf':
+        cairosvg.svg2pdf(svg, write_to=filename)
+    else:
+        with open(filename, "wb+") as f:
+            f.write(svg)

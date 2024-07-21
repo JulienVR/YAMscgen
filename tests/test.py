@@ -6,9 +6,10 @@ from src.parser import Parser
 
 def generate_img(input_txt):
     builder = Builder(Parser(input_txt))
-    image = builder.generate()
-    with open("/home/odoo/Downloads/out.svg", "wb+") as f:
-        f.write(image)
+    images = builder.generate()
+    for i, image in enumerate(images):
+        with open(f"/home/odoo/Downloads/out-{i}.svg", "wb+") as f:
+            f.write(image)
 
 
 class Test(unittest.TestCase):
@@ -19,7 +20,7 @@ class Test(unittest.TestCase):
             hscale = "2", width="500";
             arcgradient = "20", max-height="500", font="courier", font-size="15";
                     
-            a,b,c;
+            a,b,c [linecolour="red"];
             
             # This is a comment;
             # a -> b [label="another comment"];

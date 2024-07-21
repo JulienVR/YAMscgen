@@ -111,7 +111,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     MARGIN_LEFT_RIGHT = 2
     scaled_ascender = get_text_ascender(afm, font_size)
     text_height = get_text_height(afm, font_size)
-    g = ET.Element("g")
+    g = ET.Element("g", {"id": "label", "label": label})
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
     # shift label upward if multiline
@@ -136,10 +136,6 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
                 "fill": options.get("textbgcolour") or options.get("textbgcolor") or "white",
             },
         )
-        # Sometimes, the text goes beyond the SVG frame
-        #max_x = float(rect.attrib["x"]) + float(rect.attrib["width"])
-        #if max_x > float(root.attrib["width"]):
-        #    root.attrib["width"] = str(max_x)
         # Custom font passed in the element
         if 'font-family' in options:
             # e.g. 'helvetica-bold' -> should use the 'helvetica-bold' AFM, but set the font-family of text element to 'helvetica'
