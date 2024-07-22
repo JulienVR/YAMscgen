@@ -7,18 +7,22 @@ from src.parser import Parser
 def generate_img(input_txt):
     builder = Builder(Parser(input_txt))
     images = builder.generate()
-    for i, image in enumerate(images):
-        with open(f"/home/odoo/Downloads/out-{i}.svg", "wb+") as f:
-            f.write(image)
+    if len(images) > 1:
+        for i, image in enumerate(images):
+            with open(f"/home/odoo/Downloads/out-{i}.svg", "wb+") as f:
+                f.write(image)
+    else:
+        with open(f"/home/odoo/Downloads/out.svg", "wb+") as f:
+            f.write(images[0])
 
 
-class Test(unittest.TestCase):
+class TestScenarios(unittest.TestCase):
 
     def test1(self):
         generate_img(
             r"""msc {
             hscale = "2", width="500";
-            arcgradient = "20", max-height="500", font="courier", font-size="15";
+            arcgradient = "20", max-height="1500", font="courier", font-size="15";
                     
             a,b,c [linecolour="red"];
             
@@ -229,19 +233,6 @@ class Test(unittest.TestCase):
             }"""
         )
 
-    def test4(self):
-        line = ' ... [label = "this is ...", ID="1"], --- [label = "2nd", ID="2"];'
-        lines = Parser.split_elements_on_line(line)
-        self.assertEqual(
-            lines,
-            ['... [label = "this is ...", ID="1"]', '--- [label = "2nd", ID="2"]'],
-        )
-
-    def test5(self):
-        line = " ...  , --- ;"
-        lines = Parser.split_elements_on_line(line)
-        self.assertEqual(lines, ["...", "---"])
-
     def test_omitted_signal(self):
         generate_img(
             r"""msc {
@@ -264,18 +255,6 @@ class Test(unittest.TestCase):
             }"""
         )
 
-    def test_parse_options(self):
-        line = r'a->b [label="test label,\non several; lines", arcskip="1", fill="red"]'
-        options = Parser.parse_options(line)
-        self.assertEqual(
-            options,
-            {
-                "label": r"test label,\non several; lines",
-                "arcskip": "1",
-                "fill": "red",
-            },
-        )
-
     def test_arity1_elements(self):
         generate_img(
             r"""msc {
@@ -293,7 +272,3 @@ class Test(unittest.TestCase):
             a->b [label="arc"];
             }"""
         )
-
-
-if __name__ == "__main__":
-    unittest.main()

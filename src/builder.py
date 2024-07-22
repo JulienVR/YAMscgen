@@ -1,9 +1,6 @@
-import logging
 import xml.etree.ElementTree as ET
 
 from . import utils
-
-logger = logging.getLogger(__name__)
 
 
 class Builder:
@@ -83,7 +80,10 @@ class Builder:
                 line = self.parser.elements.pop(0)
                 idx += 1
                 g = self.draw_line(root, line, idx)
-                if float(g.attrib['y2']) + 2 * self.margin > self.parser.context['max-height']:
+                if (
+                    self.parser.context['max-height']
+                    and float(g.attrib['y2']) + 2 * self.margin > self.parser.context['max-height']
+                ):
                     self.current_height = float(g.attrib['y1'])
                     root.remove(g)
                     self.parser.elements = [line] + self.parser.elements
@@ -103,6 +103,4 @@ class Builder:
             ET.indent(tree, space="\t", level=0)
             svgs.append(ET.tostring(root, encoding="UTF-8"))
 
-        if len(svgs) > 1:
-            logger.info(f"The height of the diagram was larger than the 'max-height' set, hence it was divided into {len(svgs)} parts.")
         return svgs

@@ -15,6 +15,10 @@ REVERTED_ARC_TO_RECIPROCAL = {
 }
 
 
+class InvalidInputException(Exception):
+    pass
+
+
 class Parser:
     def __init__(self, input):
         """
@@ -32,18 +36,22 @@ class Parser:
             'times-bold', 'times-bolditalic', 'times-italic', 'times-roman'
         * font-size = font size (can also be set on a specific element)
         """
-        self.input = re.findall(r"msc {([\s\S]*)}", input)[0]
+        try:
+            self.input = re.findall(r"msc {([\s\S]*)}", input)[0]
+        except IndexError:
+            raise InvalidInputException("The input should start with 'msc {' and end with '}'")
         self.context = {
             "hscale": 1,
             "width": 600,
             "arcgradient": 0,
-            "max-height": 0,
+            "max-height": None,
             "font-size": 12,
             "font": "helvetica",
         }
         self.participants = []
         self.elements = []
         self.parse()
+        self.sanity_check()
 
     def __repr__(self):
         elements = ""
@@ -69,14 +77,10 @@ class Parser:
 
     @staticmethod
     def parse_options(line):
-        attrs_string = re.findall(
-            REGEX_ATTRIBUTES, line, re.DOTALL
-        )  # DOTALL: in case a label contains "\n"
+        attrs_string = re.findall(REGEX_ATTRIBUTES, line)
         options = {}
         if attrs_string:
-            options = dict(
-                re.findall('([\w-]*) ?= ?"(.*?)"', attrs_string[0], re.DOTALL)
-            )
+            options = dict(re.findall('([\w-]*) ?= ?"(.*?)"', attrs_string[0]))
         return options
 
     def parse_context(self, line):
@@ -91,15 +95,13 @@ class Parser:
     def parse_participants(self, line):
         """Parse the participant(s) on a given line"""
         participants = []
-        line_without_options = re.sub(r"\[(.*?)\]", "", line, flags=re.DOTALL)
+        line_without_options = re.sub(r"\[(.*?)\]", "", line)
         for name in line_without_options.split(","):
             dirty_name = name.strip(";")
             assert (
                 " " not in dirty_name.strip()
             ), f"'{dirty_name}' is not a valid participant name."
-            options_match = re.findall(
-                f"({dirty_name} ?\[.*?\])", line, flags=re.DOTALL
-            )
+            options_match = re.findall(f"({dirty_name} ?\[.*?\])", line)
             options = {}
             if options_match:
                 options = self.parse_options(options_match[0])
@@ -148,6 +150,8 @@ class Parser:
         input_without_comment = re.sub(
             "\s#.*\n", "", self.input
         )  # /!\ do not remove 'a -> b [textbgcolour="#7fff7f"]'
+        if not input_without_comment:
+            raise InvalidInputException("The input is empty after removing the comments.")
         for line in input_without_comment.split(";"):
             # remove comment (anything from # to \n)
             line = line.strip()
@@ -175,3 +179,16 @@ class Parser:
                         element = self.parse_arity2(el)
                     elements.append(element)
                 self.elements.append(elements)
+        if not self.participants:
+            raise InvalidInputException("The input contains no participants.")
+        if not self.elements:
+            raise InvalidInputException("The input contains no element to draw.")
+
+    def sanity_check(self):
+        participants = {p['name'] for p in self.participants}
+        for line in self.elements:
+            for el in line:
+                if hasattr(el, 'src') and el.src not in participants:
+                    raise InvalidInputException(f"The participant '{el.src}' was not declared.")
+                if hasattr(el, 'dst') and el.dst not in participants and el.element != '->*':
+                    raise InvalidInputException(f"The participant '{el.dst}' was not declared.")

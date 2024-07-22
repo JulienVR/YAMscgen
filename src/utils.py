@@ -13,7 +13,7 @@ def parse_afm_files():
     fonts_directory = os.path.dirname(__file__) + "/../pdfcorefonts"
     for filename in os.listdir(fonts_directory):
         path = os.path.join(fonts_directory, filename)
-        if not os.path.isfile(path) or not filename.endswith('.afm'):
+        if not filename.endswith('.afm'):
             continue
         with open(path, 'r') as f:
             content = f.read()
@@ -125,7 +125,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
         else:
             x = min(x1, x2) + abs(x2 - x1) / 2 - text_width / 2
         y += text_height if idx != 0 else 0
-        rect = ET.SubElement(
+        ET.SubElement(
             g,
             "rect",
             {
