@@ -33,6 +33,12 @@ def main():
         required=False,
     )
     parser.add_argument(
+        "-c",
+        "--css",
+        help="The css file used to style the output file.",
+        required=False,
+    )
+    parser.add_argument(
         "-o",
         "--output",
         help="The output file to write to.",
@@ -58,7 +64,12 @@ def main():
         logger.error(e)
         sys.exit()
 
-    svgs = Builder(parser=parser).generate()
+    css_content = False
+    if args.css:
+        with open(args.css) as f:
+            css_content = f.read()
+
+    svgs = Builder(parser=parser, css_content=css_content).generate()
 
     filenames = []
     for i, svg in enumerate(svgs):

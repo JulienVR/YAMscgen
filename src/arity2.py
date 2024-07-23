@@ -62,7 +62,7 @@ class Arc(Arity2):
                     "path",
                     {
                         "d": "M 10 5 l -10 5",  # simple line (l: LineTo)
-                        "style": f"stroke:{color}",
+                        "stroke": color,
                     },
                 )
             elif self.element == "=>>":

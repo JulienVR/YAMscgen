@@ -4,7 +4,7 @@ from . import utils
 
 
 class Builder:
-    def __init__(self, parser):
+    def __init__(self, parser, css_content=False):
         self.parser = parser
         self.participants_coordinates = {}
         self.vertical_step = 28 + self.parser.context["arcgradient"]  # margin after drawing any element
@@ -16,6 +16,7 @@ class Builder:
         self.font = self.parser.context['font']
         self.font_afm = utils.parse_afm_files()
         self.defs = ET.Element("defs")
+        self.css_content = css_content
 
     def draw_participants(self, root):
         """Draw participants (on top of the image)"""
@@ -94,13 +95,16 @@ class Builder:
             # add a bottom margin
             y1 = self.current_height
             y2 = self.current_height + self.margin
-            g = ET.SubElement(root, "g", {'id': "lifelines-margin", 'y1': str(y1), 'y2': str(y2)})
+            g = ET.SubElement(root, "g", {'id': "lifelines", 'y1': str(y1), 'y2': str(y2)})
             utils.expand_lifelines(self, g, y1=y1, y2=y2, extra_options={})
             # set height
             root.attrib["height"] = str(self.current_height + 2 * self.margin)
             # indent
             tree = ET.ElementTree(root)
             ET.indent(tree, space="\t", level=0)
-            svgs.append(ET.tostring(root, encoding="UTF-8"))
+            svg = ET.tostring(root, encoding="UTF-8")
+            extra_content = f"""<style>\n\t\t<![CDATA[\n{self.css_content}\n]]>\n\t</style>\n\t""".encode()
+            svg = svg.replace(b"<defs>", extra_content + b"<defs>")
+            svgs.append(svg)
 
         return svgs

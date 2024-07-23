@@ -1,0 +1,15 @@
+msc {
+    arcgradient = "30";
+    font="Courier";
+    a, b;
+    a->b [label="arc"];
+    --- [label="general comment\nwhich is on several lines\nand another one", textbgcolor="turquoise"];
+    a->b [label="fourth arc"];
+    --- [label="general comment", textbgcolor="turquoise"];
+    a->a [label = "arrow to self"];
+    a->b;
+    ||| [label="extra space", textbgcolor="turquoise"];
+    a->b [label="arc"];
+    ... [label="omitted signal", textbgcolor="turquoise"];
+    a->b [label="arc"];
+}

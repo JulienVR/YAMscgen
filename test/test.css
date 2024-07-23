@@ -1,0 +1,22 @@
+/* color the lifelines */
+#lifelines > line{
+    stroke: blue;
+    stroke-width: 2;
+}
+
+/* color the arcs */
+#elements > path, line{
+    stroke: orange;
+    stroke-width: 2;
+}
+
+/* color the tip of the arrows */
+defs path {
+    stroke: orange;
+    fill: orange;
+}
+
+/* highlight all labels */
+#label > rect {
+    fill: yellow;
+}

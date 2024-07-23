@@ -12,6 +12,7 @@ class Arity1:
         return f"<{self._name}> {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
+        root.attrib['id'] = "lifelines"
         # Expand lifelines: margin
         y2 = builder.current_height + builder.margin + builder.font_size
         utils.expand_lifelines(
