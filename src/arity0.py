@@ -3,16 +3,16 @@ import xml.etree.ElementTree as ET
 from . import utils
 
 
-class Arity1:
+class Arity0:
     def __init__(self, options):
         self.options = options
-        self._name = "Arity1"
+        self._name = "Arity0"
 
     def __repr__(self):
         return f"<{self._name}> {self.options}"
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        root.attrib['id'] = "lifelines"
+        root.attrib['class'] = "lifelines"
         # Expand lifelines: margin
         y2 = builder.current_height + builder.margin + builder.font_size
         utils.expand_lifelines(
@@ -53,14 +53,14 @@ class Arity1:
         return max(y2, y2_label), extra_options
 
 
-class ExtraSpace(Arity1):
+class ExtraSpace(Arity0):
     def __init__(self, options):
         """|||"""
         super().__init__(options)
         self._name = "ExtraSpace"
 
 
-class GeneralComment(Arity1):
+class GeneralComment(Arity0):
     def __init__(self, options):
         """---"""
         super().__init__(options)
@@ -70,7 +70,7 @@ class GeneralComment(Arity1):
         return super().draw(builder, root, extra_options)
 
 
-class OmittedSignal(Arity1):
+class OmittedSignal(Arity0):
     def __init__(self, options):
         """..."""
         super().__init__(options)

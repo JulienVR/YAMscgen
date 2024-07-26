@@ -255,7 +255,7 @@ class TestScenarios(unittest.TestCase):
             }"""
         )
 
-    def test_arity1_elements(self):
+    def test_arity0_elements(self):
         generate_img(
             r"""msc {
             arcgradient = "30";

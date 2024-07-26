@@ -51,6 +51,7 @@ def expand_lifelines(builder, root: ET.Element, y1, y2, extra_options: dict):
                 "y1": str(y1),
                 "x2": str(coord),
                 "y2": str(y2),
+                "class": participant['name'],
                 **extra_options,
                 **options,
             },
@@ -111,7 +112,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     MARGIN_LEFT_RIGHT = 2
     scaled_ascender = get_text_ascender(afm, font_size)
     text_height = get_text_height(afm, font_size)
-    g = ET.Element("g", {"id": "label", "label": label})
+    g = ET.Element("g", {"class": "label", "label": label})
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
     # shift label upward if multiline

@@ -9,7 +9,6 @@ class Builder:
         self.participants_coordinates = {}
         self.vertical_step = 28 + self.parser.context["arcgradient"]  # margin after drawing any element
         self.margin = self.vertical_step / 2  # margin before drawing any element
-        self.stylesheets = []
         self.current_height = 0
         self.width = self.parser.context["width"] * self.parser.context["hscale"]
         self.font_size = self.parser.context["font-size"]
@@ -21,7 +20,7 @@ class Builder:
     def draw_participants(self, root):
         """Draw participants (on top of the image)"""
         self.current_height = self.font_size
-        g = ET.SubElement(root, "g", {'id': "participants"})
+        g = ET.SubElement(root, "g", {'class': "participants"})
         relative_position = float(self.width) / (2 * len(self.parser.participants))
         x = relative_position
         y2_list = []
@@ -38,9 +37,9 @@ class Builder:
         self.current_height = min(y2_list)
 
     def draw_line(self, root, line, idx):
-        g = ET.SubElement(root, "g", {'id': f"line-{idx}"})
-        g_lifelines = ET.SubElement(g, "g", {'id': "lifelines"})
-        g_elements = ET.SubElement(g, "g", {'id': "elements"})
+        g = ET.SubElement(root, "g", {'class': "line", 'id': f"line-{idx}"})
+        g_lifelines = ET.SubElement(g, "g", {'class': "lifelines"})
+        g_elements = ET.SubElement(g, "g", {'class': "element"})
         # draw all the elements on the line
         y2_list = []
         extra_options = {}
@@ -71,6 +70,7 @@ class Builder:
         return root
 
     def generate(self):
+        """ Returns a list of bytes which are the output SVG diagrams """
         svgs = []
         while self.parser.elements:
             self.current_height = 0
@@ -78,13 +78,15 @@ class Builder:
             self.draw_participants(root)
             idx = 0
             while self.parser.elements:
-                line = self.parser.elements.pop(0)
                 idx += 1
+                line = self.parser.elements.pop(0)
                 g = self.draw_line(root, line, idx)
                 if (
                     self.parser.context['max-height']
                     and float(g.attrib['y2']) + 2 * self.margin > self.parser.context['max-height']
                 ):
+                    # If the max-height has been exceeded, need to remove the last element drawn and finish drawing
+                    # the current SVG. Then, draw one or several new SVGs with the remaining elements.
                     self.current_height = float(g.attrib['y1'])
                     root.remove(g)
                     self.parser.elements = [line] + self.parser.elements
@@ -95,7 +97,7 @@ class Builder:
             # add a bottom margin
             y1 = self.current_height
             y2 = self.current_height + self.margin
-            g = ET.SubElement(root, "g", {'id': "lifelines", 'y1': str(y1), 'y2': str(y2)})
+            g = ET.SubElement(root, "g", {'class': "lifelines", 'y1': str(y1), 'y2': str(y2)})
             utils.expand_lifelines(self, g, y1=y1, y2=y2, extra_options={})
             # set height
             root.attrib["height"] = str(self.current_height + 2 * self.margin)

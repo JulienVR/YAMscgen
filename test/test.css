@@ -1,11 +1,17 @@
-/* color the lifelines */
-#lifelines > line{
+/* color the lifeline of B in blue */
+.lifelines > line.b{
     stroke: blue;
     stroke-width: 2;
 }
 
+/* color the lifeline of A in green */
+.lifelines > line.a{
+    stroke: green;
+    stroke-width: 2;
+}
+
 /* color the arcs */
-#elements > path, line{
+.element > path, line{
     stroke: orange;
     stroke-width: 2;
 }
@@ -17,6 +23,6 @@ defs path {
 }
 
 /* highlight all labels */
-#label > rect {
+.label > rect {
     fill: yellow;
 }

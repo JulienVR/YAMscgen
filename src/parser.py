@@ -1,7 +1,7 @@
 import re
 
 from .arity2 import Arc, Box
-from .arity1 import ExtraSpace, OmittedSignal, GeneralComment
+from .arity0 import ExtraSpace, OmittedSignal, GeneralComment
 
 REGEX_ATTRIBUTES = r"\[(.*)]"
 REVERTED_ARC_TO_RECIPROCAL = {
@@ -114,7 +114,7 @@ class Parser:
         assert participants, f"Could not parse the participants on line {line}"
         self.participants = participants
 
-    def parse_arity1(self, el):
+    def parse_arity0(self, el):
         """Parse '|||', '---', '...' on a given line"""
         element = re.sub(REGEX_ATTRIBUTES, "", el).strip()
         options = self.parse_options(el)
@@ -174,7 +174,7 @@ class Parser:
                         or el.startswith("---")
                         or el.startswith("...")
                     ):
-                        element = self.parse_arity1(el)
+                        element = self.parse_arity0(el)
                     else:
                         element = self.parse_arity2(el)
                     elements.append(element)
