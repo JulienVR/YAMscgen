@@ -66,9 +66,6 @@ class GeneralComment(Arity0):
         super().__init__(options)
         self._name = "GeneralComment"
 
-    def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        return super().draw(builder, root, extra_options)
-
 
 class OmittedSignal(Arity0):
     def __init__(self, options):
