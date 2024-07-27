@@ -13,19 +13,16 @@ class Arity0:
 
     def draw(self, builder, root: ET.Element, extra_options: dict = False, y=0):
         root.attrib['class'] = "lifelines"
-        # Expand lifelines: element
-        height = builder.margin * 2
-        y1 = y
-        y2 = y1 + height
-        # Label
         x1 = min(builder.participants_coordinates.values())
         x2 = max(builder.participants_coordinates.values())
         g = ET.SubElement(root, "g")
         font = self.options.get('font-family', builder.font)
-        if self._name in ("OmittedSignal", "ExtraSpace"):
-            y_label = (y1 + y2)/2 + builder.font_size/2
-        else:
-            y_label = (y1 + y2)/2 - builder.font_size
+        afm = utils.get_afm(builder.font_afm, font)
+        label = self.options.get("label", "")
+        offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
+        y1 = y + offset
+        y2 = y1 + builder.margin * 2
+        y_label = (y1 + y2)/2 - offset
         y2_label = utils.draw_label(
             root, x1, x2, y_label, font, builder.font_size, builder.font_afm, self.options
         )

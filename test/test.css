@@ -1,17 +1,15 @@
-/* color the lifeline of B in blue */
-.lifelines > line.b{
-    stroke: blue;
-    stroke-width: 2;
+/* color the lifeline of A in green */
+.lifelines > line.a, g.participants  > rect.a{
+    stroke: green;
 }
 
-/* color the lifeline of A in green */
-.lifelines > line.a{
-    stroke: green;
-    stroke-width: 2;
+/* color the lifeline of B in blue */
+.lifelines > line.b, g.participants  > rect.b {
+    stroke: blue;
 }
 
 /* color the arcs */
-.element > path, line{
+.elements > line, .elements > path {
     stroke: orange;
     stroke-width: 2;
 }

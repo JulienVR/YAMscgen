@@ -46,6 +46,7 @@ class Builder:
                 'height': str(max(heights) + self.margin),
                 'stroke': participant['options'].get('linecolour') or participant['options'].get('linecolor') or 'black',
                 'fill': participant['options'].get('textbgcolor') or participant['options'].get('textbgcolour') or 'white',
+                'class': participant['name'],
                 **participant['options'],
             })
             y2 = self.draw_participant(g, participant, x, self.current_height + (max(heights)-height)/2)
@@ -56,7 +57,7 @@ class Builder:
     def draw_line(self, root, line, idx):
         g = ET.SubElement(root, "g", {'class': "line", 'id': f"line-{idx}"})
         g_lifelines = ET.SubElement(g, "g", {'class': "lifelines"})
-        g_elements = ET.SubElement(g, "g", {'class': "element"})
+        g_elements = ET.SubElement(g, "g", {'class': "elements"})
         # draw all the elements on the line
         y2_list = []
         extra_options = {}

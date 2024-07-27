@@ -233,12 +233,7 @@ class Arc(Arity2):
         font = self.options.get('font-family', builder.font)
         if not self.options.get("ignore_label"):
             if x1 != x2:
-                if y and label and len(label.split(r"\n")) == 1 and builder.parser.context["arcgradient"] == 0:
-                    # Draw the label above the arc
-                    y = y - (offset + 2)
-                else:
-                    # Draw the label in between the start and end y coordinates
-                    y = (y1 + y2)/2 - offset
+                y = (y1 + y2)/2 - offset
             y2 = max(
                 utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options),
                 y2,
@@ -290,8 +285,9 @@ class Box(Arity2):
             )
         # draw label
         MARGIN_TOP_BOTTOM = builder.font_size/2  # Margin between text and box borders
+        font = self.options.get('font-family', builder.font)
         y2 = utils.draw_label(
-            root, x1, x2, y1 + MARGIN_TOP_BOTTOM, builder.font, builder.font_size, builder.font_afm, self.options
+            root, x1, x2, y1 + MARGIN_TOP_BOTTOM, font, builder.font_size, builder.font_afm, self.options
         )
         y2 += MARGIN_TOP_BOTTOM
         # update the rectangle based on the lower vertical coordinate

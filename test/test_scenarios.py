@@ -29,7 +29,7 @@ class TestScenarios(unittest.TestCase):
             # This is a comment;
             # a -> b [label="another comment"];
             # a -> b [label = "another comment containing \n tmp \n"];
-            a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold", font-weight="bold"];
+            a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold"];
             a -> b [ label = "this should be on line X", textbgcolor = "yellow"],
             b-> c [ label = "this should be on line X as well", textbgcolor = "yellow", font-family="times-italic", font-style="italic"];
             c =>c [ label = "process(1)", textbgcolor = "yellow"];
@@ -349,5 +349,67 @@ class TestScenarios(unittest.TestCase):
             a => b, c note c [label="a => b"];
             ---, c note c [label="---", textbgcolour="#7CC1D7"];
             a => b, c note c [label="a => b"];
+            }"""
+        )
+
+    def test_fig_arcs(self):
+        generate_img(
+            r"""msc {
+            a [label="A"], b [label="B"];
+            
+            a -> b [label="a -> b"];
+            a => b [label="a => b"];
+            a >> b [label="a >> b"];
+            a =>> b [label="a =>> b"];
+            a :> b [label="a :> b"];
+            a -x b [label="a -x b"];
+            }"""
+        )
+
+    def test_fig_0air(self):
+        generate_img(
+            r"""msc {
+            a [label="A"], b [label="B"], c [label="Instructions"];
+            
+            a => b, c note c [label="a => b"];
+            a => b, c note c [label="a => b"];
+            |||, c note c [label="|||", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            ..., c note c [label="...", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            ---, c note c [label="---", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            }"""
+        )
+
+    def test_different_fonts(self):
+        generate_img(
+            r"""msc {
+            a [label="Times"], b [label="Courier"], c [label="Helvetica"];
+            
+            a note a [label="Times-Roman", font-family="Times-Roman", textbgcolor="#dae8fc"],
+            b note b [label="Courier", font-family="Courier", textbgcolor="#dae8fc"],
+            c note c [label="Helvetica", textbgcolor="#dae8fc"];
+            
+            a note a [label="Times-Bold", font-family="Times-Bold", font-weight="bold", textbgcolor="#dae8fc"],
+            b note b [label="Courier-Bold", font-family="Courier-Bold", font-weight="bold", textbgcolor="#dae8fc"],
+            c note c [label="Helvetica-Bold", font-family="Helvetica-Bold", font-weight="bold", textbgcolor="#dae8fc"];
+            
+            a note a [label="Times-Italic", font-family="Times-Italic", font-style="italic", textbgcolor="#dae8fc"],
+            b note b [label="Courier-Oblique", font-family="Courier-Oblique", font-style="italic", textbgcolor="#dae8fc"],
+            c note c [label="Helvetica-Oblique", font-family="Helvetica-Oblique", font-style="italic", textbgcolor="#dae8fc"];
+            }"""
+        )
+
+    def test_show_splitting_lines(self):
+        generate_img(
+            r"""msc {
+            arcgradient="20";
+            a [textbgcolor="#dae8fc"], b [textbgcolor="#dae8fc"];
+            a -> b [label="This is a label\nspanning multiple lines", textbgcolor="#dae8fc"];
+            b -> a [label="This is a oneliner", textbgcolor="#dae8fc"];
+            b -> b [label="Arc to self\nbut multiline", textbgcolor="#dae8fc"];
+            a note a [label="It also works\nwith notes", textbgcolor="#dae8fc"],
+            b note b [label="Notice the alignment\nof another element\nhaving a longer label\non the same line", textbgcolor="#dae8fc"];
             }"""
         )
