@@ -46,6 +46,38 @@ class TestScenarios(unittest.TestCase):
         }"""
         )
 
+    def test_arcs_alignment(self):
+        generate_img(
+            r"""msc {
+            a,b,c [linecolour="red"];
+
+            a => b [label="oneliner label"],
+            a note a [label="Several arcs on\nthe same line"],
+            c => c [ label = "oneliner label", textbgcolor = "yellow"],
+            c => b [label = "twoliner\nlabel"];
+            a => b [label = "another label"],
+            c => b [label = "this time, it's aligned"];
+            }"""
+        )
+
+    def test_arcs_alignment_arcgradient(self):
+        """ A small alignment problem (also for mscgen and mscgen_js)
+        Conclusion: alignment is not guaranteed for labels having different number of lines
+        """
+        generate_img(
+            r"""msc {
+            arcgradient="30";
+            a,b,c [linecolour="red"];
+            
+            a => b [label="oneliner label"],
+            a note a [label="Several arcs on\nthe same line"],
+            c => c [ label = "oneliner label", textbgcolor = "yellow"],
+            c => b [label = "twoliner\nlabel"];
+            a => b [label = "another label"],
+            c => b [label = "this time, it's aligned"];
+            }"""
+        )
+
     def test2_low_arcgradient(self):
         generate_img(
             r"""msc {

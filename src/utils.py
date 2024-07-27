@@ -99,7 +99,7 @@ def get_afm(font_afm, font):
 
 def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     """
-    Draw the label right below the y coordinate, and in the middle of the x1, x2 coordinates.
+    Draw the label centered around the y coordinate, and in the middle of the x1, x2 coordinates.
     If there are multiple lines, expand the label downwards.
     :returns the lower vertical coordinate of the label drawn
     """
@@ -113,9 +113,6 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     g = ET.Element("g", {"class": "label", "label": label})
     # for a label right below y, need to put the cursor at y + scaled_ascender (if y grows downwards)
     y += scaled_ascender
-    # shift label upward if multiline
-    if x1 == x2:
-        y -= text_height * len(label.split(r"\n"))
     for idx, lab in enumerate(label.split(r"\n")):  # labels may contain newline character
         # Draw Boxes
         lab = lab.strip()

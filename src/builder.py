@@ -99,6 +99,9 @@ class Builder:
             'y1': str(self.current_height),
             'y2': str(self.current_height + margin),
         })
+        g = ET.SubElement(g, "g", {
+            'class': "lifelines",
+        })
         utils.expand_lifelines(self, g, self.current_height, self.current_height + margin, {})
         self.current_height += margin
 

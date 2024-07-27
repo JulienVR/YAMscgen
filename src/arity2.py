@@ -216,6 +216,9 @@ class Arc(Arity2):
         offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
         x1 = builder.participants_coordinates[self.src]
         y1 = y + offset
+        if self.src == self.dst:
+            # the arc from self should start *after* the label
+            y1 += offset + builder.margin/2
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context["arcgradient"] * (float(self.options.get("arcskip", "0")) + 1)
         if self.src == self.dst and builder.parser.context["arcgradient"] < 10:
@@ -229,8 +232,13 @@ class Arc(Arity2):
         # Label (last element drawn since the rendering order is based on the document order)
         font = self.options.get('font-family', builder.font)
         if not self.options.get("ignore_label"):
-            # Draw the label in between the start and end y coordinates
-            y = (y1 + y2)/2 - offset
+            if x1 != x2:
+                if y and label and len(label.split(r"\n")) == 1 and builder.parser.context["arcgradient"] == 0:
+                    # Draw the label above the arc
+                    y = y - (offset + 2)
+                else:
+                    # Draw the label in between the start and end y coordinates
+                    y = (y1 + y2)/2 - offset
             y2 = max(
                 utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options),
                 y2,
