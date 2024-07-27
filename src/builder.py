@@ -7,8 +7,7 @@ class Builder:
     def __init__(self, parser, css_content=False):
         self.parser = parser
         self.participants_coordinates = {}
-        self.vertical_step = 28 + self.parser.context["arcgradient"]  # margin after drawing any element
-        self.margin = self.vertical_step / 2  # margin before drawing any element
+        self.margin = 10  # margin before drawing any element
         self.current_height = 0
         self.width = self.parser.context["width"] * self.parser.context["hscale"]
         self.font_size = self.parser.context["font-size"]
@@ -17,24 +16,42 @@ class Builder:
         self.defs = ET.Element("defs")
         self.css_content = css_content
 
+    def draw_participant(self, root, participant, x, y=0):
+        """ Draw a single participant
+        :argument y: the y coordinate to draw the label to
+        :returns the lowest y coordinate
+        """
+        self.participants_coordinates[participant["name"]] = x
+        if not participant["options"].get("label"):
+            participant["options"]["label"] = participant["name"]
+        font_size = float(participant["options"].get("font-size", self.font_size))
+        y2 = utils.draw_label(
+            root, x - 1, x + 1, y, self.font, font_size, self.font_afm, participant["options"]
+        )
+        return y2
+
     def draw_participants(self, root):
-        """Draw participants (on top of the image)"""
+        """ Draw all participants """
         self.current_height = self.font_size
         g = ET.SubElement(root, "g", {'class': "participants"})
         relative_position = float(self.width) / (2 * len(self.parser.participants))
         x = relative_position
-        y2_list = []
-        for entity in self.parser.participants:
-            self.participants_coordinates[entity["name"]] = x
-            if not entity["options"].get("label"):
-                entity["options"]["label"] = entity["name"]
-            font_size = float(entity["options"].get("font-size", self.font_size))
-            y2 = utils.draw_label(
-                g, x - 1, x + 1, self.current_height, self.font, font_size, self.font_afm, entity["options"]
-            )
-            y2_list.append(y2)
+        heights = [self.draw_participant(ET.Element('tmp'), p, x) for p in self.parser.participants]
+        actual_y2_list = []
+        for participant, height in zip(self.parser.participants, heights):
+            ET.SubElement(g, "rect", {
+                'x': str(x - relative_position/2),
+                'y': str(self.current_height - self.margin/2),
+                'width': str(relative_position),
+                'height': str(max(heights) + self.margin),
+                'stroke': participant['options'].get('linecolour') or participant['options'].get('linecolor') or 'black',
+                'fill': participant['options'].get('textbgcolor') or participant['options'].get('textbgcolour') or 'white',
+                **participant['options'],
+            })
+            y2 = self.draw_participant(g, participant, x, self.current_height + (max(heights)-height)/2)
+            actual_y2_list.append(y2)
             x += 2 * relative_position
-        self.current_height = min(y2_list)
+        self.current_height = max(actual_y2_list) + self.margin/2
 
     def draw_line(self, root, line, idx):
         g = ET.SubElement(root, "g", {'class': "line", 'id': f"line-{idx}"})
@@ -43,17 +60,23 @@ class Builder:
         # draw all the elements on the line
         y2_list = []
         extra_options = {}
-        for element in line:
-            y2, options = element.draw(builder=self, root=g_elements)
+        # get the height of each element on the line, so we can center the elements on a given line
+        heights = [el.draw(builder=self, root=ET.Element("g"), y=0)[0] for el in line]
+        for element, height in zip(line, heights):
+            y2, options = element.draw(builder=self, root=g_elements, y=self.current_height + (max(heights) - height)/2)
             assert isinstance(
                 y2, float
             ), "The 'draw' method should return a tuple (float, dict)"
             y2_list.append(y2)
             extra_options.update(**(options or {}))
-        # expand the participants lifelines using the maximum y2 coordinate
+        # expand lifelines until the end of the greater element
         utils.expand_lifelines(self, g_lifelines, y1=self.current_height, y2=max(y2_list), extra_options=extra_options)
+        # add a margin between the lines
+        y2_final = max(y2_list) + self.margin
+        # expand lifelines after add a small margin
+        utils.expand_lifelines(self, g_lifelines, y1=max(y2_list), y2=y2_final, extra_options={})
         g.attrib['y1'] = str(self.current_height)
-        self.current_height = max(y2_list)
+        self.current_height = y2_final
         g.attrib['y2'] = str(self.current_height)
         return g
 
@@ -69,6 +92,16 @@ class Builder:
         ET.SubElement(root, "defs")
         return root
 
+    def add_empty_margin(self, root, margin):
+        g = ET.SubElement(root, "g", {
+            'class': "line",
+            'id': "line-0",
+            'y1': str(self.current_height),
+            'y2': str(self.current_height + margin),
+        })
+        utils.expand_lifelines(self, g, self.current_height, self.current_height + margin, {})
+        self.current_height += margin
+
     def generate(self):
         """ Returns a list of bytes which are the output SVG diagrams """
         svgs = []
@@ -76,6 +109,7 @@ class Builder:
             self.current_height = 0
             root = self.initialize_root()
             self.draw_participants(root)
+            self.add_empty_margin(root, self.margin)
             idx = 0
             while self.parser.elements:
                 idx += 1
@@ -83,7 +117,7 @@ class Builder:
                 g = self.draw_line(root, line, idx)
                 if (
                     self.parser.context['max-height']
-                    and float(g.attrib['y2']) + 2 * self.margin > self.parser.context['max-height']
+                    and float(g.attrib['y2']) + self.margin > self.parser.context['max-height']
                 ):
                     # If the max-height has been exceeded, need to remove the last element drawn and finish drawing
                     # the current SVG. Then, draw one or several new SVGs with the remaining elements.
@@ -94,13 +128,8 @@ class Builder:
             # add the defs to the root
             for marker in self.defs:
                 root.find('defs').append(marker)
-            # add a bottom margin
-            y1 = self.current_height
-            y2 = self.current_height + self.margin
-            g = ET.SubElement(root, "g", {'class': "lifelines", 'y1': str(y1), 'y2': str(y2)})
-            utils.expand_lifelines(self, g, y1=y1, y2=y2, extra_options={})
             # set height
-            root.attrib["height"] = str(self.current_height + 2 * self.margin)
+            root.attrib["height"] = str(self.current_height + self.margin)
             # indent
             tree = ET.ElementTree(root)
             ET.indent(tree, space="\t", level=0)

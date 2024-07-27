@@ -11,17 +11,12 @@ class Arity0:
     def __repr__(self):
         return f"<{self._name}> {self.options}"
 
-    def draw(self, builder, root: ET.Element, extra_options: dict = False):
+    def draw(self, builder, root: ET.Element, extra_options: dict = False, y=0):
         root.attrib['class'] = "lifelines"
-        # Expand lifelines: margin
-        y2 = builder.current_height + builder.margin + builder.font_size
-        utils.expand_lifelines(
-            builder, root, y1=builder.current_height, y2=y2, extra_options=self.options
-        )
-        builder.current_height = y2
         # Expand lifelines: element
-        y1 = builder.current_height
-        y2 = y1 + builder.vertical_step
+        height = builder.margin * 2
+        y1 = y
+        y2 = y1 + height
         # Label
         x1 = min(builder.participants_coordinates.values())
         x2 = max(builder.participants_coordinates.values())
@@ -50,7 +45,8 @@ class Arity0:
                     "stroke-dasharray": "5, 3",
                 },
             )
-        return max(y2, y2_label), extra_options
+        self.options.update(**(extra_options or {}))
+        return max(y2, y2_label), self.options
 
 
 class ExtraSpace(Arity0):
@@ -73,5 +69,5 @@ class OmittedSignal(Arity0):
         super().__init__(options)
         self._name = "OmittedSignal"
 
-    def draw(self, builder, root: ET.Element, extra_options: dict = False):
-        return super().draw(builder, root, {"stroke-dasharray": str(2)})
+    def draw(self, builder, root: ET.Element, extra_options: dict = False, y=0):
+        return super().draw(builder, root, {"stroke-dasharray": str(2)}, y)

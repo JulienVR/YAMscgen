@@ -58,13 +58,12 @@ def expand_lifelines(builder, root: ET.Element, y1, y2, extra_options: dict):
         )
 
 
-def get_offset_from_label_multiple_lines(label, font_size):
+def get_offset_from_label_multiple_lines(label, afm, font_size):
     """A label may have multiple lines, hence needing the arcs to be shifted downwards."""
-    offset = 0
-    label_lines_count = len(label.split(r"\n"))
-    if label_lines_count:
-        offset = label_lines_count * font_size
-    return offset
+    if not label:
+        return 0
+    line_number = len(label.split(r"\n"))
+    return (line_number / 2) * get_text_height(afm, font_size)
 
 
 def get_text_width(text, afm, font_size):
@@ -108,7 +107,6 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     if not label:
         return y
     afm = get_afm(font_afm, font)
-    MARGIN_DOWN = font_size
     MARGIN_LEFT_RIGHT = 2
     scaled_ascender = get_text_ascender(afm, font_size)
     text_height = get_text_height(afm, font_size)
@@ -120,6 +118,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
         y -= text_height * len(label.split(r"\n"))
     for idx, lab in enumerate(label.split(r"\n")):  # labels may contain newline character
         # Draw Boxes
+        lab = lab.strip()
         text_width = get_text_width(lab, afm, font_size)
         if x1 == x2:
             x = x1 + 3 * MARGIN_LEFT_RIGHT
@@ -158,6 +157,4 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     root.append(g)
     # add the scaled descender to get the lowest vertical coordinate of the label
     y += get_text_descender(afm, font_size)
-    # add the margin
-    y += MARGIN_DOWN
     return y

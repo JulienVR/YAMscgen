@@ -272,3 +272,50 @@ class TestScenarios(unittest.TestCase):
             a->b [label="arc"];
             }"""
         )
+
+    def test_aligned_elements(self):
+        """ Check that the comments and arcs are aligned """
+        generate_img(
+            r"""msc {
+            a [label="A\ntmp", linecolour="green", textbgcolor="yellow"], b [label="B"], c [label="Instructions"], d;
+            
+            a->b, c abox c [label="turlupff\ntest again"];
+            a => b [label = "place for a label"],
+            b => c [label = "1\n2\n3\n4"],
+            c -> d,
+            c note c [label="a => b\nsecond line\nthird line", textbgcolor="yellow"];
+            a => b [label="line 1\nline 2\nline 3", textbgcolor="yellow"],
+            c note c [label="a => b"];
+            ||| [stroke="red"],
+            c note c [label="|||", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            ... [stroke="red"], 
+            c note c [label="...", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            --- [stroke="red"],
+            c note c [label="---", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b\nsecond line"];
+            a=>b;
+            b=>c;
+            }"""
+        )
+
+    def test_aligned_elements_high_arcgradient(self):
+        generate_img(
+            r"""msc {
+            arcgradient="50";
+            a [label="A"], b [label="B"], c [label="Instructions"], d;
+            
+            a => b[label = "1\n2\n3"],
+            c -> d [label = "1\n2"],
+            c note c [label="a => b\nsecond line\nthird line", textbgcolor="yellow"];
+            a => b [label="line 1\nline 2\nline3\nline4", textbgcolor="yellow"],
+            c note c [label="a => b"];
+            |||, c note c [label="|||", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            ..., c note c [label="...", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            ---, c note c [label="---", textbgcolour="#7CC1D7"];
+            a => b, c note c [label="a => b"];
+            }"""
+        )

@@ -186,7 +186,8 @@ class Arc(Arity2):
                 },
             )
 
-    def draw(self, builder, root: ET.Element):
+    def draw(self, builder, root: ET.Element, y=0):
+        """ y is the coordinate at which we start drawing the arc """
         if self.element == "->*":
             # broadcast: equivalent to simple arcs to every other participant
             participants = list(builder.participants_coordinates.keys())
@@ -201,7 +202,7 @@ class Arc(Arity2):
             # draw label, centered around the whole graph
             x1 = min(builder.participants_coordinates.values())
             x2 = max(builder.participants_coordinates.values())
-            y = builder.current_height + builder.font_size * 2.3
+            y += builder.font_size * 2.3
             utils.draw_label(root, x1, x2, y, builder.font, builder.font_size, builder.font_afm, self.options)
             return max(y2_list), extra_options
 
@@ -209,11 +210,12 @@ class Arc(Arity2):
         color = self.options.get("linecolour") or self.options.get("linecolor") or "black"
         arrow_id = self.get_arrow_tip_id(color)
         # Arc coordinates
-        offset = utils.get_offset_from_label_multiple_lines(
-            self.options.get("label", ""), builder.font_size
-        )
+        font = self.options.get('font-family', builder.font)
+        afm = utils.get_afm(builder.font_afm, font)
+        label = self.options.get("label", "")
+        offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
         x1 = builder.participants_coordinates[self.src]
-        y1 = builder.current_height + builder.margin + offset
+        y1 = y + offset
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context["arcgradient"] * (float(self.options.get("arcskip", "0")) + 1)
         if self.src == self.dst and builder.parser.context["arcgradient"] < 10:
@@ -225,22 +227,14 @@ class Arc(Arity2):
         self.draw_arrow_tip(builder, arrow_id, color)
 
         # Label (last element drawn since the rendering order is based on the document order)
-        if x1 != x2:
-            # vertically center the label between start and end point of the arc...
-            y = y1 + (y2 - y1) / 2 - builder.font_size * 1.1
-        else:
-            # ... except for the arc to self
-            y = y1 - builder.font_size / 2
         font = self.options.get('font-family', builder.font)
-        # multiline labels are put above the arc
-        label_lines = len(self.options.get("label", "").split(r"\n"))
-        if label_lines > 1 and x1 != x2:
-            afm = utils.get_afm(builder.font_afm, font)
-            text_height = utils.get_text_height(afm, builder.font_size)
-            label_height = text_height * (label_lines - 1)
-            y -= label_height
         if not self.options.get("ignore_label"):
-            utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options)
+            # Draw the label in between the start and end y coordinates
+            y = (y1 + y2)/2 - offset
+            y2 = max(
+                utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options),
+                y2,
+            )
         return y2, {}
 
 
@@ -252,10 +246,11 @@ class Box(Arity2):
     def __repr__(self):
         return f"<Box> {self.src} {self.element} {self.dst} {self.options}"
 
-    def draw(self, builder, root: ET.Element, extra_options: dict = False):
+    def draw(self, builder, root: ET.Element, extra_options: dict = False, y=0):
+        """ y is the coordinate at which we start drawing the box (no margin is added) """
+        y1 = y
         space_per_participant = float(builder.width) / len(builder.participants_coordinates.keys())
         x1 = builder.participants_coordinates[self.src] - space_per_participant * 0.4
-        y1 = builder.current_height + builder.margin
         x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
 
         border_color = self.options.get("bordercolour") or self.options.get("bordercolor") or "black"
@@ -286,9 +281,11 @@ class Box(Arity2):
                 },
             )
         # draw label
+        MARGIN_TOP_BOTTOM = builder.font_size/2  # Margin between text and box borders
         y2 = utils.draw_label(
-            root, x1, x2, y1 + builder.font_size, builder.font, builder.font_size, builder.font_afm, self.options
+            root, x1, x2, y1 + MARGIN_TOP_BOTTOM, builder.font, builder.font_size, builder.font_afm, self.options
         )
+        y2 += MARGIN_TOP_BOTTOM
         # update the rectangle based on the lower vertical coordinate
         if self.element in ("box", "rbox"):
             rectangle.attrib["height"] = str(y2 - y1)
