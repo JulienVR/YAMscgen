@@ -29,7 +29,7 @@ class Parser:
         * hscale = multiply the width by this number, default = 1
         * width = set the width (pixels), default = 600
         * arcgradient = number of pixels vertical difference between the start and the end of the arc
-        * max-height = split image if height is larger than this: TODO
+        * max-height = split image if height is larger than this
         * font = font (can also be set on a specific element using 'font-family')
             'courier', courier-bold', 'courier-boldoblique', 'courier-oblique',
             'helvetica', 'helvetica-bold', 'helvetica-boldoblique', 'helvetica-oblique',

@@ -42,7 +42,6 @@ class Arc(Arity2):
 
     def draw_arrow_tip(self, builder, arrow_id, color):
         if not builder.defs.find(f'marker[@id="{arrow_id}"]'):
-            # TODO: pass the defs elements
             marker = ET.SubElement(
                 builder.defs,
                 "marker",
@@ -195,14 +194,15 @@ class Arc(Arity2):
             y2_list = []
             extra_options = {}
             self.options["ignore_label"] = "1"
+            y += builder.font_size
             for dst in participants:
-                y2, options = Arc(self.src, dst, "->", self.options).draw(builder, root)
+                y2, options = Arc(self.src, dst, "->", self.options).draw(builder, root, y)
                 y2_list.append(y2)
                 extra_options.update(**(options or {}))
             # draw label, centered around the whole graph
             x1 = min(builder.participants_coordinates.values())
             x2 = max(builder.participants_coordinates.values())
-            y += builder.font_size * 2.3
+            y -= builder.font_size/2
             utils.draw_label(root, x1, x2, y, builder.font, builder.font_size, builder.font_afm, self.options)
             return max(y2_list), extra_options
 
