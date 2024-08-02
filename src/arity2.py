@@ -289,7 +289,7 @@ class Box(Arity2):
                 },
             )
         # draw label
-        MARGIN_TOP_BOTTOM = builder.font_size/2  # Margin between text and box borders
+        MARGIN_TOP_BOTTOM = builder.font_size  # Margin between text and box borders
         font = self.options.get('font-family', builder.font)
         y2 = utils.draw_label(
             root, x1, x2, y1 + MARGIN_TOP_BOTTOM, font, builder.font_size, builder.font_afm, self.options
