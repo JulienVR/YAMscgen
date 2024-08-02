@@ -17,7 +17,7 @@ class Arity0:
         x2 = max(builder.participants_coordinates.values())
         g = ET.SubElement(root, "g")
         font = self.options.get('font-family', builder.font)
-        afm = utils.get_afm(builder.font_afm, font)
+        afm = utils.get_font_afm(builder.font_afm, font)
         label = self.options.get("label", "")
         offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
         y1 = y + offset

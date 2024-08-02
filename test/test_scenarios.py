@@ -413,3 +413,18 @@ class TestScenarios(unittest.TestCase):
             b note b [label="Notice the alignment\nof another element\nhaving a longer label\non the same line", textbgcolor="#dae8fc"];
             }"""
         )
+
+    def test_alignment(self):
+        generate_img(
+            r"""msc {
+            arcgradient="10";
+            a, b, c, d;
+            a => b,
+            b=>c [label="line 1"],
+            c=>d [label="line 1\nline 2\nline 3"];
+            a => a,
+            b=>b [label="line 1"],
+            c=>c [label="line 1\nline 2"],
+            d=>d [label="line 1\nline 2\nline 3"];
+            }"""
+        )

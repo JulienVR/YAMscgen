@@ -211,14 +211,11 @@ class Arc(Arity2):
         arrow_id = self.get_arrow_tip_id(color)
         # Arc coordinates
         font = self.options.get('font-family', builder.font)
-        afm = utils.get_afm(builder.font_afm, font)
+        afm = utils.get_font_afm(builder.font_afm, font)
         label = self.options.get("label", "")
         offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
         x1 = builder.participants_coordinates[self.src]
         y1 = y + offset
-        if self.src == self.dst:
-            # the arc from self should start *after* the label
-            y1 += offset + builder.margin/2
         x2 = builder.participants_coordinates[self.dst]
         y2 = y1 + builder.parser.context["arcgradient"] * (float(self.options.get("arcskip", "0")) + 1)
         if self.src == self.dst and builder.parser.context["arcgradient"] < 10:
@@ -229,8 +226,16 @@ class Arc(Arity2):
         self.draw_arrow(root, x1, x2, y1, y2, arrow_id, color)
         self.draw_arrow_tip(builder, arrow_id, color)
 
-        # Label (last element drawn since the rendering order is based on the document order)
+        # Label for arc to self should be next to the lifeline
         font = self.options.get('font-family', builder.font)
+        if self.src == self.dst and self.options.get('label'):
+            # get max length of the label
+            font_afm = utils.get_font_afm(builder.font_afm, font)
+            label_width = max(
+                utils.get_text_width(lab, font_afm, builder.font_size) for lab in self.options['label'].split(r"\n"))
+            x1 -= label_width + 2 * utils.MARGIN_LEFT_RIGHT + 2
+
+        # Label (last element drawn since the rendering order is based on the document order)
         if not self.options.get("ignore_label"):
             if x1 != x2:
                 y = (y1 + y2)/2 - offset

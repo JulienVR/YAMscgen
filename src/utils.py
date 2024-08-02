@@ -6,6 +6,7 @@ import xml.etree.ElementTree as ET
 
 logger = logging.getLogger(__name__)
 
+MARGIN_LEFT_RIGHT = 2
 
 def parse_afm_files():
     """ Returns a dict mapping the font_name to the ascender, descender and width of each Unicode code point """
@@ -66,9 +67,9 @@ def get_offset_from_label_multiple_lines(label, afm, font_size):
     return (line_number / 2) * get_text_height(afm, font_size)
 
 
-def get_text_width(text, afm, font_size):
+def get_text_width(text, font_afm, font_size):
     """Returns the text length in pixels."""
-    return sum(afm["unicode_to_width"][ord(c)] for c in text) * font_size / 1000
+    return sum(font_afm["unicode_to_width"][ord(c)] for c in text) * font_size / 1000
 
 
 def get_text_ascender(afm, font_size):
@@ -87,7 +88,7 @@ def get_text_height(afm, font_size):
     return get_text_ascender(afm, font_size) + get_text_descender(afm, font_size)
 
 
-def get_afm(font_afm, font):
+def get_font_afm(font_afm, font):
     """ from all the AFM available, retrieve the one matching the font """
     try:
         afm = font_afm[font.lower()]
@@ -106,8 +107,7 @@ def draw_label(root, x1, x2, y, font, font_size, font_afm, options):
     label = options.get("label")
     if not label:
         return y
-    afm = get_afm(font_afm, font)
-    MARGIN_LEFT_RIGHT = 2
+    afm = get_font_afm(font_afm, font)
     scaled_ascender = get_text_ascender(afm, font_size)
     text_height = get_text_height(afm, font_size)
     g = ET.Element("g", {"class": "label", "label": label})
