@@ -428,3 +428,20 @@ class TestScenarios(unittest.TestCase):
             d=>d [label="line 1\nline 2\nline 3"];
             }"""
         )
+
+    def test_alignment_2(self):
+        generate_img(
+            r"""msc {
+            arcgradient="20";
+            a, b, c, d;
+            
+            a=>b,
+            b=>c [label="line 1\nline 2"],
+            c=>d [label="line 1\nline 2\nline 3\nline 4\nline 5"];
+        
+            a=>a,
+            b=>b [label="line 1\nline 2"],
+            c=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"],
+            d note d [label = "Note should be\naligned too !"];
+            }"""
+        )

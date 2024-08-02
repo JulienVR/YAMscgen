@@ -109,15 +109,15 @@ class Builder:
     def generate(self):
         """ Returns a list of bytes which are the output SVG diagrams """
         svgs = []
-        while self.parser.elements:
+        while self.parser.lines:
             self.current_height = 0
             root = self.initialize_root()
             self.draw_participants(root)
             self.add_empty_margin(root, self.margin)
             idx = 0
-            while self.parser.elements:
+            while self.parser.lines:
                 idx += 1
-                line = self.parser.elements.pop(0)
+                line = self.parser.lines.pop(0)
                 g = self.draw_line(root, line, idx)
                 if (
                     self.parser.context['max-height']
@@ -127,7 +127,7 @@ class Builder:
                     # the current SVG. Then, draw one or several new SVGs with the remaining elements.
                     self.current_height = float(g.attrib['y1'])
                     root.remove(g)
-                    self.parser.elements = [line] + self.parser.elements
+                    self.parser.lines = [line] + self.parser.lines
                     break
             # add the defs to the root
             for marker in self.defs:

@@ -49,19 +49,19 @@ class Parser:
             "font": "helvetica",
         }
         self.participants = []
-        self.elements = []
+        self.lines = []
         self.parse()
         self.sanity_check()
 
     def __repr__(self):
-        elements = ""
-        for el in self.elements:
-            elements += "\t" + str(el) + "\n"
+        lines = ""
+        for el in self.lines:
+            lines += "\t" + str(el) + "\n"
         return (
             f"<DiagramBuilder>\n"
             f"Options: {self.context}\n"
             f"Participants: {self.participants}\n"
-            f"Elements:\n{elements}"
+            f"Lines:\n{lines}"
         )
 
     @staticmethod
@@ -152,23 +152,23 @@ class Parser:
         )  # /!\ do not remove 'a -> b [textbgcolour="#7fff7f"]'
         if not input_without_comment:
             raise InvalidInputException("The input is empty after removing the comments.")
-        for line in input_without_comment.split(";"):
+        for cmd_line in input_without_comment.split(";"):
             # remove comment (anything from # to \n)
-            line = line.strip()
-            if not line:
+            cmd_line = cmd_line.strip()
+            if not cmd_line:
                 continue
             if not self.participants and any(
-                line.strip().startswith(option) for option in self.context.keys()
+                cmd_line.strip().startswith(option) for option in self.context.keys()
             ):
                 # parse options only if the line begins with a known option key
-                self.parse_context(line)
+                self.parse_context(cmd_line)
             elif not self.participants:
                 # parse participants once
-                self.parse_participants(line)
+                self.parse_participants(cmd_line)
             else:
                 # parse arcs, boxes, spaces, etc
-                elements = []
-                for el in self.split_elements_on_line(line):
+                line = []
+                for el in self.split_elements_on_line(cmd_line):
                     if (
                         el.startswith("|||")
                         or el.startswith("---")
@@ -177,16 +177,16 @@ class Parser:
                         element = self.parse_arity0(el)
                     else:
                         element = self.parse_arity2(el)
-                    elements.append(element)
-                self.elements.append(elements)
+                    line.append(element)
+                self.lines.append(line)
         if not self.participants:
             raise InvalidInputException("The input contains no participants.")
-        if not self.elements:
+        if not self.lines:
             raise InvalidInputException("The input contains no element to draw.")
 
     def sanity_check(self):
         participants = {p['name'] for p in self.participants}
-        for line in self.elements:
+        for line in self.lines:
             for el in line:
                 if hasattr(el, 'src') and el.src not in participants:
                     raise InvalidInputException(f"The participant '{el.src}' was not declared.")
