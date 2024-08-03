@@ -17,9 +17,8 @@ class Builder:
         self.css_content = css_content
 
     def draw_participant(self, root, participant, x, y=0):
-        """ Draw a single participant
-        :argument y: the y coordinate to draw the label to
-        :returns the lowest y coordinate
+        """ Draw a single participant, y being the coordinate to draw the label to
+        Returns the lowest y coordinate
         """
         self.participants_coordinates[participant["name"]] = x
         if not participant["options"].get("label"):

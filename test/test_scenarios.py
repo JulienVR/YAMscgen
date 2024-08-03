@@ -1,25 +1,31 @@
+import os
 import unittest
 
 from src.builder import Builder
 from src.parser import Parser
 
 
-def generate_img(input_txt):
-    builder = Builder(Parser(input_txt))
-    images = builder.generate()
-    if len(images) > 1:
-        for i, image in enumerate(images):
-            with open(f"/home/odoo/Downloads/out-{i}.svg", "wb+") as f:
-                f.write(image)
-    else:
-        with open(f"/home/odoo/Downloads/out.svg", "wb+") as f:
-            f.write(images[0])
-
-
 class TestScenarios(unittest.TestCase):
 
+    def generate_img(self, input_txt):
+        this_dir_path = os.path.dirname(os.path.realpath(__file__))
+        test_name = self.id().split('.')[-1]
+        test_path = os.path.join(this_dir_path, "test_svgs")
+        if not os.path.exists(test_path):
+            os.makedirs(test_path)
+        file_path = os.path.join(test_path, test_name)
+        builder = Builder(Parser(input_txt))
+        images = builder.generate()
+        if len(images) > 1:
+            for i, image in enumerate(images):
+                with open(f"{file_path}-{i}.svg", "wb+") as f:
+                    f.write(image)
+        else:
+            with open(f"{file_path}.svg", "wb+") as f:
+                f.write(images[0])
+
     def test1(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             hscale = "2", width="500";
             arcgradient = "20", max-height="1500", font="courier", font-size="15";
@@ -47,7 +53,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_arcs_alignment(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             a,b,c [linecolour="red"];
 
@@ -64,7 +70,7 @@ class TestScenarios(unittest.TestCase):
         """ A small alignment problem (also for mscgen and mscgen_js)
         Conclusion: alignment is not guaranteed for labels having different number of lines
         """
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="30";
             a,b,c [linecolour="red"];
@@ -79,7 +85,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test2_low_arcgradient(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="10";
             a [label="Client"],b [label="Server"];
@@ -96,7 +102,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test2_avg_arcgradient(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="30";
             a [label="Client"],b [label="Server"];
@@ -113,7 +119,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_drawing_boxes(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "20";
             font-size = "15";
@@ -136,7 +142,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_drawing_boxes_hscale(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "10";
             hscale = "2";
@@ -159,7 +165,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_arc_to_self(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "10";
             # The entities
@@ -182,7 +188,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_arc_to_self_avg_arcgradient(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "30";
             # The entities
@@ -205,7 +211,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_arc_to_self_high_arcgradient(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "50";
             # The entities
@@ -228,7 +234,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_newline_char(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "10";
             a, b;
@@ -237,7 +243,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_broadcast_arc(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "30";
             a, b, c;
@@ -248,14 +254,14 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_broadcast_arc_bis(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             # This is a comment
             # another comment
             arcgradient = "30";
             font-size="16";
             font="Helvetica";
-            a [textbgcolour = "turquoise", label = "Participant 1\ntrès important"],
+            a [textbgcolour = "turquoise", label = "A is very\nimportant"],
             b [label = "BBB", font-size="20", textbgcolour = "turquoise"], c, d;
             b->* [label = "broadcast with custom key"];
             b->* [label = "broadcast", textcolor="red"];
@@ -266,7 +272,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_omitted_signal(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             font-size="20", font="courier", max-height="500";
             # entity D can be customized
@@ -288,7 +294,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_arity0_elements(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient = "30";
             font="Courier";
@@ -307,7 +313,7 @@ class TestScenarios(unittest.TestCase):
 
     def test_aligned_elements(self):
         """ Check that the comments and arcs are aligned """
-        generate_img(
+        self.generate_img(
             r"""msc {
             a [label="A\ntmp", linecolour="green", textbgcolor="yellow"], b [label="B"], c [label="Instructions"], d;
             
@@ -333,7 +339,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_aligned_elements_high_arcgradient(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="50";
             a [label="A"], b [label="B"], c [label="Instructions"], d;
@@ -353,7 +359,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_fig_arcs(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             a [label="A"], b [label="B"];
             
@@ -367,7 +373,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_fig_0air(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             a [label="A"], b [label="B"], c [label="Instructions"];
             
@@ -383,7 +389,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_different_fonts(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             a [label="Times"], b [label="Courier"], c [label="Helvetica"];
             
@@ -402,7 +408,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_show_splitting_lines(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="20";
             a [textbgcolor="#dae8fc"], b [textbgcolor="#dae8fc"];
@@ -415,7 +421,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_alignment(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="10";
             a, b, c, d;
@@ -430,7 +436,7 @@ class TestScenarios(unittest.TestCase):
         )
 
     def test_alignment_2(self):
-        generate_img(
+        self.generate_img(
             r"""msc {
             arcgradient="20";
             a, b, c, d;
