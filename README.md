@@ -22,6 +22,8 @@ Written by Julien Van Roy under supervision of Prof. Bruno Quoitin (UMons). Code
 https://github.com/JulienVR/YAMscgen.
 ```
 
+Runs on any Python version >= 3.8.
+
 ### Tests
 
 To run all tests :
