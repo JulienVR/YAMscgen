@@ -135,7 +135,8 @@ class Builder:
             root.attrib["height"] = str(self.current_height + self.margin)
             # indent
             tree = ET.ElementTree(root)
-            ET.indent(tree, space="\t", level=0)
+            if hasattr(ET, 'indent'):  # not 'indent' attribute in python 3.8 or lower
+                ET.indent(tree, space="\t", level=0)
             svg = ET.tostring(root, encoding="UTF-8")
             extra_content = f"""<style>\n\t\t<![CDATA[\n{self.css_content}\n]]>\n\t</style>\n\t""".encode()
             svg = svg.replace(b"<defs>", extra_content + b"<defs>")
