@@ -262,7 +262,7 @@ class Box(Arity2):
         x1 = builder.participants_coordinates[self.src] - space_per_participant * 0.4
         x2 = builder.participants_coordinates[self.dst] + space_per_participant * 0.4
 
-        border_color = self.options.get("bordercolour") or self.options.get("bordercolor") or "black"
+        border_color = self.options.get("linecolor") or self.options.get("linecolour") or "black"
         background_color = self.options.get("textbgcolour") or self.options.get("textbgcolor") or "white"
         if self.element in ("box", "rbox"):
             rectangle = ET.SubElement(
