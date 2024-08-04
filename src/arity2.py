@@ -217,7 +217,8 @@ class Arc(Arity2):
         x1 = builder.participants_coordinates[self.src]
         y1 = y + offset
         x2 = builder.participants_coordinates[self.dst]
-        y2 = y1 + builder.parser.context["arcgradient"] * (float(self.options.get("arcskip", "0")) + 1)
+        y2 = y1 + builder.parser.context["arcgradient"]
+        y2 += (builder.parser.context["arcgradient"] + 2 * builder.margin) * float(self.options.get("arcskip", "0"))
         if self.src == self.dst and builder.parser.context["arcgradient"] < 10:
             # avoid having a squashed arc to self
             y2 += 10

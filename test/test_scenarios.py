@@ -35,7 +35,7 @@ class TestScenarios(unittest.TestCase):
             # This is a comment;
             # a -> b [label="another comment"];
             # a -> b [label = "another comment containing \n tmp \n"];
-            a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold"];
+            a->c [ label = "First Line\nCode:\nfont-family='helvetica-bold', font-weight='bold'", textbgcolor = "yellow", font-family="helvetica-bold", font-weight="bold"];
             a -> b [ label = "this should be on line X", textbgcolor = "yellow"],
             b-> c [ label = "this should be on line X as well", textbgcolor = "yellow", font-family="times-italic", font-style="italic"];
             c =>c [ label = "process(1)", textbgcolor = "yellow"];
