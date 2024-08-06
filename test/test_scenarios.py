@@ -451,3 +451,34 @@ class TestScenarios(unittest.TestCase):
             d note d [label = "Note should be\naligned too !"];
             }"""
         )
+
+    def test_demo_example(self):
+        self.generate_img(
+            r"""msc {
+            # Global options here
+            arcgradient="10";
+            
+            # Entities here
+            a [label="Entity A", textbgcolor="#82b366"],
+            b [label="Entity B", textbgcolor="grey"],
+            c [label="Entity C", textbgcolor="#d79b00"];
+            
+            # Arcs, boxes
+            
+            # A line finishes with ';'
+            a=>b [label="First call"];
+            
+            # Several elements can be aligned
+            b=>b [label="Processing...", textbgcolor="yellow"], 
+            c note c [label="Several elements\ncan be on the\nsame line", textbgcolor="#dae8fc"];
+            
+            c -> b [label="Another arc type"];
+            b >> a [label="A dashed arc\nis useful here"],
+            c rbox c [label="This is another\ntype of comment", textbgcolor="#dae8fc"];
+            
+            ... [label="Time flies...", textcolor="blue"];
+            
+            a:>b [label="And this is an\nemphasized arc"];
+            a->c [label="Last call", linecolor="red"];
+            }"""
+        )
