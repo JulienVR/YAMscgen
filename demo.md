@@ -1,5 +1,7 @@
 # YAMscgen
 
+This file demonstrates some features of YAMscgen that are not present in Mscgen
+
 ### Generating an example file
 
 Copy paste this in a `input.txt` file. Note that this example also works with Mscgen.
@@ -34,11 +36,13 @@ msc {
 }
 ```
 
-Now, execute
+Run:
 
 ```
 $ python3 yamscgen.py -i input.txt -o out.svg
 ```
+
+The SVG obtained is as shown below:
 
 ![Demo diagram](https://github.com/JulienVR/YAMscgen/blob/main/demo.png "Demo diagram")
 
@@ -123,10 +127,12 @@ defs path {
 }
 ```
 
-Now, execute
+Run:
 
 ```
 $ python3 yamscgen.py -i input.txt -c template.css -o out.svg
 ```
+
+The SVG obtained is as shown below:
 
 ![Demo diagram with CSS](https://github.com/JulienVR/YAMscgen/blob/main/demo_css.png "Demo diagram with CSS")
