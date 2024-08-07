@@ -8,6 +8,11 @@ logger = logging.getLogger(__name__)
 
 MARGIN_LEFT_RIGHT = 2
 
+
+class InvalidInputException(Exception):
+    pass
+
+
 def parse_afm_files():
     """ Returns a dict mapping the font_name to the ascender, descender and width of each Unicode code point """
     fonts = {}

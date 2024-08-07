@@ -1,4 +1,4 @@
-from src.builder import MaxHeightTooLowException
+from src.utils import InvalidInputException
 from .common import YAMscgenTestCommon
 
 
@@ -433,7 +433,7 @@ class TestScenarios(YAMscgenTestCommon):
         )
 
     def test_split_max_height_low(self):
-        with self.assertRaisesRegex(MaxHeightTooLowException, "The max-height '50.0' is insufficient for the diagram to be drawn."):
+        with self.assertRaisesRegex(InvalidInputException, "The max-height '50.0' is insufficient for the diagram to be drawn."):
             self.generate_img(
                 r"""msc {
                 max-height="50";

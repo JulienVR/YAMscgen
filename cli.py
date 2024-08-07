@@ -69,7 +69,11 @@ def main():
         with open(args.css) as f:
             css_content = f.read()
 
-    svgs = Builder(parser=parser, css_content=css_content).generate()
+    try:
+        svgs = Builder(parser=parser, css_content=css_content).generate()
+    except InvalidInputException as e:
+        logger.error(e)
+        sys.exit()
 
     filenames = []
     for i, svg in enumerate(svgs):

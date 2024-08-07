@@ -1,4 +1,5 @@
-from src.parser import Parser, InvalidInputException
+from src.parser import Parser
+from src.utils import InvalidInputException
 from .common import YAMscgenTestCommon
 
 

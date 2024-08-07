@@ -3,10 +3,6 @@ import xml.etree.ElementTree as ET
 from . import utils
 
 
-class MaxHeightTooLowException(Exception):
-    pass
-
-
 class Builder:
     def __init__(self, parser, css_content=False):
         self.parser = parser
@@ -130,7 +126,7 @@ class Builder:
                     root.remove(g)
                     self.parser.lines = [line] + self.parser.lines
                     if idx == 1:
-                        raise MaxHeightTooLowException(f"The max-height '{max_height}' is insufficient for the diagram to be drawn.")
+                        raise utils.InvalidInputException(f"The max-height '{max_height}' is insufficient for the diagram to be drawn.")
                     break
             # add the defs to the root
             for marker in self.defs:

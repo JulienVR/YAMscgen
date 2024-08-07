@@ -2,6 +2,8 @@ import re
 
 from .arity2 import Arc, Box
 from .arity0 import ExtraSpace, OmittedSignal, GeneralComment
+from .utils import InvalidInputException
+
 
 REGEX_ATTRIBUTES = r"\[(.*)]"
 REGEX_ARITY2 = "(\S*?) ?(=>>|<<=|->\*|\*<-|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|box|rbox|abox|note) ?(\S*)"
@@ -14,10 +16,6 @@ REVERTED_ARC_TO_RECIPROCAL = {
     "x-": "-x",
     "*<-": "->*",
 }
-
-
-class InvalidInputException(Exception):
-    pass
 
 
 class Parser:
