@@ -3,6 +3,10 @@ import xml.etree.ElementTree as ET
 from . import utils
 
 
+class MaxHeightTooLowException(Exception):
+    pass
+
+
 class Builder:
     def __init__(self, parser, css_content=False):
         self.parser = parser
@@ -108,6 +112,7 @@ class Builder:
     def generate(self):
         """ Returns a list of bytes which are the output SVG diagrams """
         svgs = []
+        max_height = self.parser.context['max-height']
         while self.parser.lines:
             self.current_height = 0
             root = self.initialize_root()
@@ -118,15 +123,14 @@ class Builder:
                 idx += 1
                 line = self.parser.lines.pop(0)
                 g = self.draw_line(root, line, idx)
-                if (
-                    self.parser.context['max-height']
-                    and float(g.attrib['y2']) + self.margin > self.parser.context['max-height']
-                ):
+                if max_height and float(g.attrib['y2']) + self.margin > max_height:
                     # If the max-height has been exceeded, need to remove the last element drawn and finish drawing
                     # the current SVG. Then, draw one or several new SVGs with the remaining elements.
                     self.current_height = float(g.attrib['y1'])
                     root.remove(g)
                     self.parser.lines = [line] + self.parser.lines
+                    if idx == 1:
+                        raise MaxHeightTooLowException(f"The max-height '{max_height}' is insufficient for the diagram to be drawn.")
                     break
             # add the defs to the root
             for marker in self.defs:

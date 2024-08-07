@@ -98,9 +98,8 @@ class Parser:
         line_without_options = re.sub(r"\[(.*?)\]", "", line)
         for name in line_without_options.split(","):
             dirty_name = name.strip(";")
-            assert (
-                " " not in dirty_name.strip()
-            ), f"'{dirty_name}' is not a valid participant name."
+            if " " in dirty_name.strip():
+                raise InvalidInputException(f"'{dirty_name}' is not a valid participant name.")
             options_match = re.findall(f"({dirty_name} ?\[.*?\])", line)
             options = {}
             if options_match:
@@ -134,7 +133,8 @@ class Parser:
             "(\S*?) ?(=>>|<<=|->\*|\*<-|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|box|rbox|abox|note) ?(\S*)",
             el_txt,
         )
-        assert match, f"Could not parse arc: '{el_txt}'"
+        if not match:
+            raise InvalidInputException(f"Could not parse arc: '{el_txt}'")
         src, dst = match[0][0], match[0][2]
         arc = match[0][1]
         if arc in REVERTED_ARC_TO_RECIPROCAL:

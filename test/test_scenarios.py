@@ -1,8 +1,8 @@
 import os
 import unittest
 
-from src.builder import Builder
-from src.parser import Parser
+from src.builder import Builder, MaxHeightTooLowException
+from src.parser import Parser, InvalidInputException
 
 
 class TestScenarios(unittest.TestCase):
@@ -449,6 +449,64 @@ class TestScenarios(unittest.TestCase):
             b=>b [label="line 1\nline 2"],
             c=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"],
             d note d [label = "Note should be\naligned too !"];
+            }"""
+        )
+
+    def test_undeclared_entity(self):
+        with self.assertRaisesRegex(InvalidInputException, "The participant 'b' was not declared."):
+            self.generate_img(
+                r"""msc {
+                a;
+                a -> b;
+                }"""
+            )
+
+    def test_undeclared_entities(self):
+        with self.assertRaisesRegex(InvalidInputException, "'a -> b' is not a valid participant name."):
+            self.generate_img(
+                r"""msc {
+                a -> b;
+                }"""
+            )
+
+    def test_unfinished_attributes(self):
+        # TODO: this should raise
+        self.generate_img(
+            r"""msc {
+            a, b;
+            a -> b [turlututu;
+            }"""
+        )
+
+    def test_split_max_height_low(self):
+        with self.assertRaisesRegex(MaxHeightTooLowException, "The max-height '50.0' is insufficient for the diagram to be drawn."):
+            self.generate_img(
+                r"""msc {
+                max-height="50";
+                a, b;
+                a -> b [label="first"];
+                a -> b [label="second"];
+                b -> a [label="third"];
+                }"""
+            )
+
+        # but this should work
+        self.generate_img(
+            r"""msc {
+            max-height="100";
+            a, b;
+            a -> b [label="first"];
+            a -> b [label="second"];
+            b -> a [label="third"];
+            }"""
+        )
+
+    def test_special_char(self):
+        # '[' and ']' are sensitive chars
+        self.generate_img(
+            r"""msc {
+            a, b;
+            a -> b [label="hey [] hey [start\nend]"];
             }"""
         )
 

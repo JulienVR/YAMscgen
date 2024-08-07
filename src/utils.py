@@ -90,6 +90,7 @@ def get_text_height(afm, font_size):
 
 def get_font_afm(font_afm, font):
     """ from all the AFM available, retrieve the one matching the font """
+    font = 'times-roman' if font.lower() == 'times' else font.lower()  # if user inputed 'Times', we use 'Times-Roman'
     try:
         afm = font_afm[font.lower()]
     except KeyError:
