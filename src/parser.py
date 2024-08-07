@@ -4,6 +4,7 @@ from .arity2 import Arc, Box
 from .arity0 import ExtraSpace, OmittedSignal, GeneralComment
 
 REGEX_ATTRIBUTES = r"\[(.*)]"
+REGEX_ARITY2 = "(\S*?) ?(=>>|<<=|->\*|\*<-|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|box|rbox|abox|note) ?(\S*)"
 REVERTED_ARC_TO_RECIPROCAL = {
     "<<=": "=>>",
     "<-": "->",
@@ -76,12 +77,16 @@ class Parser:
         return [e.rstrip(";").rstrip(",").strip(" ") for e in elements]
 
     @staticmethod
-    def parse_options(line):
-        attrs_string = re.findall(REGEX_ATTRIBUTES, line)
-        options = {}
-        if attrs_string:
-            options = dict(re.findall('([\w-]*) ?= ?"(.*?)"', attrs_string[0]))
-        return options
+    def parse_options(options_txt, element):
+        options_txt = options_txt.strip()
+        if not options_txt:
+            return {}
+        if not options_txt.startswith("[") or not options_txt.endswith("]"):
+            raise InvalidInputException(f"Options should start with '[' and end with ']' on line '{element}'.")
+        invalid_attribute = re.sub('([\w-]*) ?= ?"(.*?)" ?,? ?', '', options_txt[1:-1]).strip()
+        if invalid_attribute:
+            raise InvalidInputException(f"Invalid attribute '{invalid_attribute}' on line '{element}'.")
+        return dict(re.findall('([\w-]*) ?= ?"(.*?)"', options_txt))
 
     def parse_context(self, line):
         for arg in self.context:
@@ -100,10 +105,10 @@ class Parser:
             dirty_name = name.strip(";")
             if " " in dirty_name.strip():
                 raise InvalidInputException(f"'{dirty_name}' is not a valid participant name.")
-            options_match = re.findall(f"({dirty_name} ?\[.*?\])", line)
+            options_match = re.findall(f"{dirty_name} ?(\[.*?\])", line)
             options = {}
             if options_match:
-                options = self.parse_options(options_match[0])
+                options = self.parse_options(options_match[0], line)
             participants.append(
                 {
                     "name": re.sub(REGEX_ATTRIBUTES, "", dirty_name).strip(),
@@ -116,7 +121,7 @@ class Parser:
     def parse_arity0(self, el):
         """Parse '|||', '---', '...' on a given line"""
         element = re.sub(REGEX_ATTRIBUTES, "", el).strip()
-        options = self.parse_options(el)
+        options = self.parse_options(el[3:].strip(), el)
         if element.startswith("|||"):
             return ExtraSpace(options=options)
         elif element.startswith("---"):
@@ -129,10 +134,7 @@ class Parser:
     def parse_arity2(self, el):
         """Parse the arcs/boxes on a given line"""
         el_txt = re.sub(REGEX_ATTRIBUTES, "", el).strip()
-        match = re.findall(
-            "(\S*?) ?(=>>|<<=|->\*|\*<-|->|<-|=>|<=|<<|>>|:>|<:|-x|x-|box|rbox|abox|note) ?(\S*)",
-            el_txt,
-        )
+        match = re.findall(REGEX_ARITY2, el_txt)
         if not match:
             raise InvalidInputException(f"Could not parse arc: '{el_txt}'")
         src, dst = match[0][0], match[0][2]
@@ -140,10 +142,14 @@ class Parser:
         if arc in REVERTED_ARC_TO_RECIPROCAL:
             src, dst = dst, src
             arc = REVERTED_ARC_TO_RECIPROCAL[arc]
+        unclosed_attributes = re.sub(REGEX_ARITY2, "", el_txt)
+        if unclosed_attributes:
+            raise InvalidInputException(f"Options should start with '[' and end with ']' on line '{el}'.")
+        options = self.parse_options(el.strip().strip(el_txt), el)
         if arc in ("box", "rbox", "abox", "note"):
-            return Box(src=src, element=arc, dst=dst, options=self.parse_options(el))
+            return Box(src=src, element=arc, dst=dst, options=options)
         else:
-            return Arc(src=src, element=arc, dst=dst, options=self.parse_options(el))
+            return Arc(src=src, element=arc, dst=dst, options=options)
 
     def parse(self):
         # NB: raw strings -> the "\" in the string will not be interpreted

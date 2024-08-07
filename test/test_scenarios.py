@@ -1,28 +1,8 @@
-import os
-import unittest
-
-from src.builder import Builder, MaxHeightTooLowException
-from src.parser import Parser, InvalidInputException
+from src.builder import MaxHeightTooLowException
+from .common import YAMscgenTestCommon
 
 
-class TestScenarios(unittest.TestCase):
-
-    def generate_img(self, input_txt):
-        this_dir_path = os.path.dirname(os.path.realpath(__file__))
-        test_name = self.id().split('.')[-1]
-        test_path = os.path.join(this_dir_path, "test_svgs")
-        if not os.path.exists(test_path):
-            os.makedirs(test_path)
-        file_path = os.path.join(test_path, test_name)
-        builder = Builder(Parser(input_txt))
-        images = builder.generate()
-        if len(images) > 1:
-            for i, image in enumerate(images):
-                with open(f"{file_path}-{i}.svg", "wb+") as f:
-                    f.write(image)
-        else:
-            with open(f"{file_path}.svg", "wb+") as f:
-                f.write(images[0])
+class TestScenarios(YAMscgenTestCommon):
 
     def test1(self):
         self.generate_img(
@@ -449,32 +429,6 @@ class TestScenarios(unittest.TestCase):
             b=>b [label="line 1\nline 2"],
             c=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"],
             d note d [label = "Note should be\naligned too !"];
-            }"""
-        )
-
-    def test_undeclared_entity(self):
-        with self.assertRaisesRegex(InvalidInputException, "The participant 'b' was not declared."):
-            self.generate_img(
-                r"""msc {
-                a;
-                a -> b;
-                }"""
-            )
-
-    def test_undeclared_entities(self):
-        with self.assertRaisesRegex(InvalidInputException, "'a -> b' is not a valid participant name."):
-            self.generate_img(
-                r"""msc {
-                a -> b;
-                }"""
-            )
-
-    def test_unfinished_attributes(self):
-        # TODO: this should raise
-        self.generate_img(
-            r"""msc {
-            a, b;
-            a -> b [turlututu;
             }"""
         )
 
