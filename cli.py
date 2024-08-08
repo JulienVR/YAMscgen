@@ -44,7 +44,13 @@ def main():
         help="The output file to write to.",
         required=True,
     )
-    parser.add_argument("-t", "--type", choices=["svg", "png", "pdf"], default="svg")
+    parser.add_argument(
+        "-t",
+        "--type",
+        help="" if cairosvg_installed else "YAMscgen can only generate SVG files without CairoSVG. Install CairoSVG for PNG and PDF output.",
+        choices=["svg", "png", "pdf"],
+        default="svg",
+    )
     args = parser.parse_args()
 
     if args.type in ('pdf', 'png') and not cairosvg_installed:
