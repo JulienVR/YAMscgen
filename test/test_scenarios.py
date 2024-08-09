@@ -494,3 +494,51 @@ class TestScenarios(YAMscgenTestCommon):
             a->c [label="Last call", linecolor="red"];
             }"""
         )
+
+    def test_arbitrary_attributes(self):
+        self.generate_img(
+            r"""msc {
+            arcgradient="20";
+            
+            a [label="A", textbgcolor="coral"],
+            b [label="Big B", linecolor="royalblue", font-size="20"],
+            c [label="Instructions", textbgcolor="#dae8fc"];
+            
+            b => a [label="Arc 1", font-family="Times-Bold", font-weight="bold"],
+            c note c [label="font-family='Times-Bold',\nfont-weight='bold'", textbgcolor="#dae8fc"];
+            
+            b => a [stroke-width="2", label="Arc 2", font-family="courier"],
+            c note c [label="stroke-width='2',\nfont-family='courier'", textbgcolor="#dae8fc"];
+            
+            b => b [opacity="0.4", label="arc to self\nwith opacity", font-style="italic", font-family="Times-Italic"],
+            c note c [label="opacity='0.4',\nfont-style='italic',\nfont-family='Times-Italic'", textbgcolor="#dae8fc"];
+            }"""
+        )
+
+    def test_colors(self):
+        self.generate_img(
+            r"""msc {
+            arcgradient="20";
+
+            a [label="A", textbgcolor="coral"],
+            b [label="B", linecolor="royalblue"],
+            c [label="Instructions", textbgcolor="#dae8fc"];
+
+            b => a [label="Arc 1", textbgcolor="goldenrod"];
+            }"""
+        )
+
+    def test_example_split(self):
+        self.generate_img(
+            r"""msc {
+            arcgradient="20", max-height="124";
+            a [textbgcolor="#82b366"], b [textbgcolor="#82b366"], c [textbgcolor="#82b366"];
+            
+            a=>b [label="line 1\nline 2"],
+            b=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"];
+        
+            a=>a [label="line 1"],
+            b=>b [label="line 1\nline 2\nline 3"],
+            c=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"];
+            }"""
+        )
