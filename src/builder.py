@@ -24,8 +24,9 @@ class Builder:
         if not participant["options"].get("label"):
             participant["options"]["label"] = participant["name"]
         font_size = float(participant["options"].get("font-size", self.font_size))
+        font = participant["options"].get("font-family", self.font)
         y2 = utils.draw_label(
-            root, x - 1, x + 1, y, self.font, font_size, self.font_afm, participant["options"]
+            root, x - 1, x + 1, y, font, font_size, self.font_afm, participant["options"]
         )
         return y2
 

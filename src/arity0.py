@@ -19,12 +19,13 @@ class Arity0:
         font = self.options.get('font-family', builder.font)
         afm = utils.get_font_afm(builder.font_afm, font)
         label = self.options.get("label", "")
-        offset = utils.get_offset_from_label_multiple_lines(label, afm, builder.font_size)
+        font_size = float(self.options.get('font-size', builder.font_size))
+        offset = utils.get_offset_from_label_multiple_lines(label, afm, font_size)
         y1 = y + offset
         y2 = y1 + builder.margin * 2
         y_label = (y1 + y2)/2 - offset
         y2_label = utils.draw_label(
-            root, x1, x2, y_label, font, builder.font_size, builder.font_afm, self.options
+            root, x1, x2, y_label, font, font_size, builder.font_afm, self.options
         )
         if self._name == "GeneralComment":
             y = (y1 + y2)/2

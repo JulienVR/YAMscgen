@@ -229,11 +229,12 @@ class Arc(Arity2):
 
         # Label for arc to self should be next to the lifeline
         font = self.options.get('font-family', builder.font)
+        font_size = float(self.options.get('font-size', builder.font_size))
         if self.src == self.dst and self.options.get('label'):
             # get max length of the label
             font_afm = utils.get_font_afm(builder.font_afm, font)
             label_width = max(
-                utils.get_text_width(lab, font_afm, builder.font_size) for lab in self.options['label'].split(r"\n"))
+                utils.get_text_width(lab, font_afm, font_size) for lab in self.options['label'].split(r"\n"))
             x1 -= label_width + 2 * utils.MARGIN_LEFT_RIGHT + 2
 
         # Label (last element drawn since the rendering order is based on the document order)
@@ -241,7 +242,7 @@ class Arc(Arity2):
             if x1 != x2:
                 y = (y1 + y2)/2 - offset
             y2 = max(
-                utils.draw_label(root, x1, x2, y, font, builder.font_size, builder.font_afm, self.options),
+                utils.draw_label(root, x1, x2, y, font, font_size, builder.font_afm, self.options),
                 y2,
             )
         return y2, {}
@@ -290,10 +291,11 @@ class Box(Arity2):
                 },
             )
         # draw label
-        MARGIN_TOP_BOTTOM = builder.font_size  # Margin between text and box borders
+        font_size = float(self.options.get('font-size', builder.font_size))
+        MARGIN_TOP_BOTTOM = font_size  # Margin between text and box borders
         font = self.options.get('font-family', builder.font)
         y2 = utils.draw_label(
-            root, x1, x2, y1 + MARGIN_TOP_BOTTOM, font, builder.font_size, builder.font_afm, self.options
+            root, x1, x2, y1 + MARGIN_TOP_BOTTOM, font, font_size, builder.font_afm, self.options
         )
         y2 += MARGIN_TOP_BOTTOM
         # update the rectangle based on the lower vertical coordinate

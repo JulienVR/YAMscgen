@@ -258,7 +258,7 @@ class TestScenarios(YAMscgenTestCommon):
             # entity D can be customized
             a, b, c, d [linecolour="red"];
             d note d [label = "a random\ncomment", bordercolor="green", textbgcolour="yellow"];
-            ... [label="Omitted Signal\nbut with several\nlines", textbgcolour="yellow"];
+            ... [label="Omitted Signal\nbut with several\nlines", textbgcolour="yellow", font-size="15"];
             a->b;
             ... [label="Omitted Signal", textbgcolour="yellow"];
             a->b;
@@ -504,8 +504,8 @@ class TestScenarios(YAMscgenTestCommon):
             b [label="Big B", linecolor="royalblue", font-size="20"],
             c [label="Instructions", textbgcolor="#dae8fc"];
             
-            b => a [label="Arc 1", font-family="Times-Bold", font-weight="bold"],
-            c note c [label="font-family='Times-Bold',\nfont-weight='bold'", textbgcolor="#dae8fc"];
+            b => a [label="Arc 1", font-family="Times-Bold", font-weight="bold", font-size="20", textbgcolor="yellow"],
+            c note c [label="font-family='Times-Bold',\nfont-weight='bold',\nfont-size='20'", textbgcolor="#dae8fc"];
             
             b => a [stroke-width="2", label="Arc 2", font-family="courier"],
             c note c [label="stroke-width='2',\nfont-family='courier'", textbgcolor="#dae8fc"];
@@ -520,7 +520,7 @@ class TestScenarios(YAMscgenTestCommon):
             r"""msc {
             arcgradient="20";
 
-            a [label="A", textbgcolor="coral"],
+            a [label="line line", textbgcolor="coral", font-family="courier"],
             b [label="B", linecolor="royalblue"],
             c [label="Instructions", textbgcolor="#dae8fc"];
 
@@ -540,5 +540,29 @@ class TestScenarios(YAMscgenTestCommon):
             a=>a [label="line 1"],
             b=>b [label="line 1\nline 2\nline 3"],
             c=>c [label="line 1\nline 2\nline 3\nline 4\nline 5"];
+            }"""
+        )
+
+    def test_tcp(self):
+        self.generate_img(
+            r"""msc {
+            # global options
+            arcgradient="20";
+            
+            # entities
+            commentsA  [label=" ", linecolor="white"],
+            a [label="Client", textbgcolour="#7CC1D7"],
+            b [label="Server", textbgcolour="#568203"],
+            commentsB  [label=" ", linecolor="white"];
+            
+            commentsA note commentsA  [label="closed", linecolor="black", textbgcolor="#FFFFCC", font-family="courier"], 
+            commentsB note commentsB  [label="closed", linecolor="black", textbgcolor="#FFFFCC", font-family="courier"];
+        
+            a=>b [label="SYN=1, seq=client_ISN", textcolour="blue"];
+            a<=b [label="SYN=1, seq=server_ISN\nack=client_ISN+1", textcolour="#568203"];
+            a=>b [label="SYN=0, seq=client_ISN+1\nack=server_ISN+1", textcolour="blue"];
+            
+            commentsA note commentsA  [label="established", linecolor="black", textbgcolor="#FFFFCC", font-family="courier"], 
+            commentsB note commentsB  [label="established", linecolor="black", textbgcolor="#FFFFCC", font-family="courier"];
             }"""
         )
