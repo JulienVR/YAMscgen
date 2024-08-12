@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO)
 def main():
     parser = argparse.ArgumentParser(
         prog="YAMscgen",
-        description="Generate flexible and customizable sequence diagrams using and extending the synthax of Mscgen: https://www.mcternan.me.uk/mscgen/.",
+        description="Generate flexible and customizable sequence diagrams using and extending the syntax of Mscgen: https://www.mcternan.me.uk/mscgen/.",
         epilog="Written by Julien Van Roy under supervision of Prof. Bruno Quoitin (UMons). Code available at https://github.com/JulienVR/YAMscgen.",
     )
 
